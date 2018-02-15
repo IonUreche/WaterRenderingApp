@@ -3,12 +3,16 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+#include "glm/vec2.hpp"
 
 #include <iostream>
 #include <fstream>
 
 #include <QTimer>
 #include <QKeySequence>
+#include <QLayout>
+#include <QSpinBox>
+#include <QLabel>
 
 #define OPENGL_MAJOR_VERSION 4
 #define OPENGL_MINOR_VERSION 5
@@ -25,6 +29,22 @@ OpenGLCanvas::~OpenGLCanvas()
 {
 
 }
+float OpenGLCanvas::GetNextRand()
+{
+	return rd();
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void OpenGLCanvas::CreateWaveEditingWidget()
+{
+	QWidget *wid = new QWidget(this);
+	QHBoxLayout *hlay = new QHBoxLayout();
+	hlay->setContentsMargins(1, 1, 1, 1);
+	wid->setLayout(hlay);
+	for (int i = 0; i < 4; ++i)
+	{
+		
+	}
+}
 /////////////////////////////////////////////////////////////////////////////////////
 void OpenGLCanvas::InitAll()
 {
@@ -35,6 +55,7 @@ void OpenGLCanvas::InitAll()
 	InitCamera();
 	InitQtConnections();
 	InitTextures();
+	InitWaterParams();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void OpenGLCanvas::initializeGL()
@@ -198,7 +219,7 @@ void OpenGLCanvas::paintGL()
 {
 	camera.Update();
 	m_mvp = camera.projection * camera.view;
-	m_time += 0.1;
+	m_time += 0.08;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	// Vao
 	glBindVertexArray(m_vao);
@@ -274,6 +295,33 @@ void OpenGLCanvas::DrawWater(glm::mat4x4 &mvp)
 
 	GLuint timeLocation = glGetUniformLocation(m_terrainShader, "time");
 	glUniform1f(timeLocation, m_time);
+
+	GLuint wavesDataLocation = glGetUniformLocation(m_terrainShader, "waves");
+	glUniform1fv(wavesDataLocation, 24 * sizeof(float), (const GLfloat *)m_wavesGeometricData.data());
+
+	//glUniform1fv("waves", (const GLfloat *)m_wavesGeometricData, GW * sizeof(Wave) / sizeof(float), 1);
+
+	//GLuint qLocation = glGetUniformLocation(m_terrainShader, "Q");
+	//glUniform1f(qLocation, m_waterParams.Q);
+	//
+	//GLuint aLocation = glGetUniformLocation(m_terrainShader, "A");
+	//glUniform1f(aLocation, m_waterParams.A);
+	//
+	//GLuint wLocation = glGetUniformLocation(m_terrainShader, "W");
+	//glUniform1f(wLocation, m_waterParams.W);
+	//
+	//GLuint lLocation = glGetUniformLocation(m_terrainShader, "L");
+	//glUniform1f(lLocation, m_waterParams.L);
+	//
+	//GLuint sLocation = glGetUniformLocation(m_terrainShader, "S");
+	//glUniform1f(sLocation, m_waterParams.S);
+	//
+	//GLuint dxLocation = glGetUniformLocation(m_terrainShader, "DX");
+	//glUniform1f(sLocation, m_waterParams.DX);
+	//
+	//GLuint dyLocation = glGetUniformLocation(m_terrainShader, "DY");
+	//glUniform1f(sLocation, m_waterParams.DY);
+
 	//
 	//glEnable(GL_TEXTURE0);
 	//glEnable(GL_TEXTURE1);
@@ -386,7 +434,48 @@ void OpenGLCanvas::keyPressEvent(QKeyEvent *event)
 	case Qt::Key_T:
 		m_isWireframeMode ^= 1;
 		break;
-		}
+	case Qt::Key_1:
+	{
+		if (event->modifiers() == Qt::ControlModifier)
+			m_waterParams.A += 0.1;
+		else
+			m_waterParams.A -= 0.1;
+		break;
+	}
+	case Qt::Key_2:
+	{
+		if (event->modifiers() == Qt::ControlModifier)
+			m_waterParams.S += 0.1;
+		else
+			m_waterParams.S -= 0.1;
+		break;
+	}
+	case Qt::Key_3:
+	{
+		if (event->modifiers() == Qt::ControlModifier)
+			m_waterParams.W += 0.1;
+		else
+			m_waterParams.W -= 0.1;
+		break;
+	}
+	case Qt::Key_4:
+	{
+		if (event->modifiers() == Qt::ControlModifier)
+			m_waterParams.L += 0.1;
+		else
+			m_waterParams.L -= 0.1;
+		m_waterParams.A = 0.03f * m_waterParams.L;
+		break;
+	}
+	case Qt::Key_5:
+	{
+		if (event->modifiers() == Qt::ControlModifier)
+			m_waterParams.Q += 0.1;
+		else
+			m_waterParams.Q -= 0.1;
+		break;
+	}
+	}
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void OpenGLCanvas::keyReleaseEvent(QKeyEvent *event)
@@ -549,6 +638,46 @@ GLuint OpenGLCanvas::create_program(const char *path_vert_shader, const char *pa
 	return shaderProgram;
 }
 /////////////////////////////////////////////////////////////////////////////////////
+void OpenGLCanvas::InitWaterParams()
+{
+	//m_waterParams.L = (GetNextRand() * 0.5f + 0.3f);
+	//m_waterParams.Q = 5.f*(GetNextRand() * 2.f + 1.f);
+	//m_waterParams.A = 0.03f;
+	//m_waterParams.W = 4;
+	//m_waterParams.S = 0.05f * std::sqrt(M_PI / m_waterParams.L);
+
+	//m_waterParams.L = 3.f;
+	//m_waterParams.Q = 0.8f;
+	//m_waterParams.A = 0.03f * m_waterParams.L;
+	//m_waterParams.S = 1.15f;
+	//glm::vec2 dir(1.f, 0.8f);
+	//dir = glm::normalize(dir);
+	//m_waterParams.DX = dir.x;
+	//m_waterParams.DY = dir.y;
+
+	float Q[4] = { 0.1f, 0.0001f, 0.0001f, 0.0001f };
+	float S[4] = { 2.15f, 0.8f, 0.4f, 0.3f };
+	float L[4] = { 15.f, 8.13f, 5.42f, 3.96f };
+	float Af[4] = { 0.23f, 0.213f, 0.125f, 0.076f };
+
+	m_wavesGeometricData.resize(24);
+	int NR_WAVES = 4;
+	for (int i = 0; i < NR_WAVES; ++i)
+	{
+		int idx = 6*i;
+		m_wavesGeometricData[idx] = L[i];
+
+		glm::vec2 dir(GetNextRand(), GetNextRand());
+		dir = glm::normalize(dir);
+
+		m_wavesGeometricData[idx + 1] = dir.x;
+		m_wavesGeometricData[idx + 2] = dir.y;
+		m_wavesGeometricData[idx + 3] = Q[i];
+		m_wavesGeometricData[idx + 4] = S[i];
+		m_wavesGeometricData[idx + 5] = Af[i] * L[i];
+	}
+}
+/////////////////////////////////////////////////////////////////////////////////////
 GLuint OpenGLCanvas::load_and_compile_shader(const char *fname, GLenum shaderType) {
 	// Load a shader from an external file
 	std::vector<char> buffer;
@@ -568,6 +697,8 @@ GLuint OpenGLCanvas::load_and_compile_shader(const char *fname, GLenum shaderTyp
 		std::vector<char> compilation_log(512);
 		glGetShaderInfoLog(shader, compilation_log.size(), NULL, &compilation_log[0]);
 		std::cerr << &compilation_log[0] << std::endl;
+		char c;
+		std::cin >> c;
 		exit(-1);
 		return -1;
 	}

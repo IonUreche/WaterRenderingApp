@@ -40,23 +40,23 @@ void main(void)
         }
         else
         {
-           // float l0 = length(p2.xy - p0.xy) * 16.0 + 1.0;
-           // float l1 = length(p3.xy - p2.xy) * 16.0 + 1.0;
-           // float l2 = length(p3.xy - p1.xy) * 16.0 + 1.0;
-           // float l3 = length(p1.xy - p0.xy) * 16.0 + 1.0;
-           // gl_TessLevelOuter[0] = l0;
-           // gl_TessLevelOuter[1] = l1;
-           // gl_TessLevelOuter[2] = l2;
-           // gl_TessLevelOuter[3] = l3;
-           // gl_TessLevelInner[0] = min(l1, l3);
-           // gl_TessLevelInner[1] = min(l0, l2);
-
-			gl_TessLevelInner[0] = 1.0;
-			gl_TessLevelInner[1] = 1.0;
-			gl_TessLevelOuter[0] = 1.0;
-			gl_TessLevelOuter[1] = 1.0;
-			gl_TessLevelOuter[2] = 1.0;
-			gl_TessLevelOuter[3] = 1.0;
+            //float l0 = length(p2.xy - p0.xy) * 16.0 + 1.0;
+            //float l1 = length(p3.xy - p2.xy) * 16.0 + 1.0;
+            //float l2 = length(p3.xy - p1.xy) * 16.0 + 1.0;
+            //float l3 = length(p1.xy - p0.xy) * 16.0 + 1.0;
+            //gl_TessLevelOuter[0] = l0;
+            //gl_TessLevelOuter[1] = l1;
+            //gl_TessLevelOuter[2] = l2;
+            //gl_TessLevelOuter[3] = l3;
+            //gl_TessLevelInner[0] = min(l1, l3);
+            //gl_TessLevelInner[1] = min(l0, l2);
+			float constvvv = 3.0;
+			gl_TessLevelInner[0] = constvvv;
+			gl_TessLevelInner[1] = constvvv;
+			gl_TessLevelOuter[0] = constvvv;
+			gl_TessLevelOuter[1] = constvvv;
+			gl_TessLevelOuter[2] = constvvv;
+			gl_TessLevelOuter[3] = constvvv;
         }
     }
 

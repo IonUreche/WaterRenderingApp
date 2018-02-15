@@ -1,4 +1,9 @@
 #pragma once
+#define _USE_MATH_DEFINES
+#include <cmath>
+#include <random>
+#include <functional>
+
 #include <QOpenGLWidget>
 #include <QOpenGLVersionProfile>
 #include <QOpenGLFunctions_4_5_Core>
@@ -11,6 +16,29 @@
 #include <QShortcut>
 
 #include "Camera.h"
+
+struct waterParams
+{
+	float Q;
+	float S;
+	float W;
+	float L;
+	float A;
+	float DX;
+	float DY;
+};
+
+class Rand_double
+{
+public:
+	Rand_double(double low, double high)
+		:r(std::bind(std::uniform_real_distribution<>(low, high), std::default_random_engine())) {}
+
+	double operator()() { return r(); }
+
+private:
+	std::function<double()> r;
+};
 
 class OpenGLCanvas : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
 {
@@ -31,6 +59,8 @@ protected:
 
 	void InitAll();
 
+	void CreateWaveEditingWidget();
+
 	void read_shader_src(const char *fname, std::vector<char> &buffer);
 	GLuint load_and_compile_shader(const char *fname, GLenum shaderType);
 	GLuint create_program(const char *path_vert_shader, const char *path_frag_shader,
@@ -44,6 +74,7 @@ protected:
 	void InitQtConnections();
 	void InitTextures();
 	void InitLighting();
+	void InitWaterParams();
 
 	// Saving
 	void SaveCameraParams();
@@ -53,6 +84,8 @@ protected:
 	void DrawWater(glm::mat4x4 &mvp);
 	void DrawSkybox(glm::mat4x4 &mvp);
 	void DrawLightCube(glm::mat4x4 &mvp);
+
+	float GetNextRand();
 
 private:
 	float t = 0;
@@ -100,4 +133,13 @@ private:
 	QOpenGLTexture *m_skyboxTex;
 
 	QShortcut *m_saveCameraLocation;
+
+	waterParams m_waterParams;
+	std::vector<float> m_wavesGeometricData;
+
+	//randomness stuff
+	//std::random_device rd;  //Will be used to obtain a seed for the random number engine
+	//std::mt19937 *gen = nullptr; //Standard mersenne_twister_engine seeded with rd()
+	//std::uniform_real_distribution<> *dis;
+	Rand_double rd{0.0, 1.0};
 };
