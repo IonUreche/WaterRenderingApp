@@ -14,8 +14,12 @@
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
 #include <QShortcut>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QDoubleSpinBox>
 
 #include "Camera.h"
+#include "GerstnelParamManager.h"
 
 struct waterParams
 {
@@ -75,6 +79,8 @@ protected:
 	void InitTextures();
 	void InitLighting();
 	void InitWaterParams();
+
+	void UpdateParamsWidgetsValues();
 
 	// Saving
 	void SaveCameraParams();
@@ -136,10 +142,16 @@ private:
 
 	waterParams m_waterParams;
 	std::vector<float> m_wavesGeometricData;
+	std::vector<QDoubleSpinBox*> m_wavesGeometricDataWidgets;
 
 	//randomness stuff
 	//std::random_device rd;  //Will be used to obtain a seed for the random number engine
 	//std::mt19937 *gen = nullptr; //Standard mersenne_twister_engine seeded with rd()
 	//std::uniform_real_distribution<> *dis;
 	Rand_double rd{0.0, 1.0};
+
+	GerstnelParamManager m_gerstnelParamManager;
+
+	QLineEdit *m_configNameLineEdit = nullptr;
+	QComboBox *m_comboConfigNames = nullptr;
 };

@@ -11,8 +11,9 @@
 #include <QTimer>
 #include <QKeySequence>
 #include <QLayout>
-#include <QSpinBox>
 #include <QLabel>
+#include <QPushButton>
+
 
 #define OPENGL_MAJOR_VERSION 4
 #define OPENGL_MINOR_VERSION 5
@@ -42,8 +43,150 @@ void OpenGLCanvas::CreateWaveEditingWidget()
 	wid->setLayout(hlay);
 	for (int i = 0; i < 4; ++i)
 	{
-		
+		QWidget *vcontainer = new QWidget();
+		QVBoxLayout *vlay = new QVBoxLayout();
+		vlay->setContentsMargins(1, 1, 1, 1);
+		vcontainer->setLayout(vlay);
+
+		// create widgets
+		// L Widget
+		QWidget *w1 = new QWidget();
+		QHBoxLayout *h1 = new QHBoxLayout();
+		h1->setContentsMargins(1, 1, 1, 1);
+		w1->setLayout(h1);
+		QLabel *l1 = new QLabel();
+		l1->setText("L: ");
+		h1->addWidget(l1);
+		QDoubleSpinBox *s1 = new QDoubleSpinBox();
+		s1->setValue(m_wavesGeometricData[6*i]);
+		m_wavesGeometricDataWidgets.push_back(s1);
+		h1->addWidget(s1);
+		QObject::connect(s1, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, i](double newVal)
+		{
+			m_wavesGeometricData[6 * i] = newVal;
+		});
+		vlay->addWidget(w1);
+
+		// Dx Widget
+		m_wavesGeometricDataWidgets.push_back(new QDoubleSpinBox());
+
+		// Dy Widget
+		m_wavesGeometricDataWidgets.push_back(new QDoubleSpinBox());
+
+		// Q Widget
+		QWidget *w4 = new QWidget();
+		QHBoxLayout *h4 = new QHBoxLayout();
+		h4->setContentsMargins(1, 1, 1, 1);
+		w4->setLayout(h4);
+		QLabel *l4 = new QLabel();
+		l4->setText("Q: ");
+		h4->addWidget(l4);
+		QDoubleSpinBox *s4 = new QDoubleSpinBox();
+		s4->setValue(m_wavesGeometricData[6 * i + 3]);
+		m_wavesGeometricDataWidgets.push_back(s4);
+		h4->addWidget(s4);
+		QObject::connect(s4, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, i](double newVal)
+		{
+			m_wavesGeometricData[6 * i + 3] = newVal;
+		});
+		vlay->addWidget(w4);
+
+		// S Widget
+		QWidget *w5 = new QWidget();
+		QHBoxLayout *h5 = new QHBoxLayout();
+		h5->setContentsMargins(1, 1, 1, 1);
+		w5->setLayout(h5);
+		QLabel *l5 = new QLabel();
+		l5->setText("S: ");
+		h5->addWidget(l5);
+		QDoubleSpinBox *s5 = new QDoubleSpinBox();
+		s5->setValue(m_wavesGeometricData[6 * i + 4]);
+		m_wavesGeometricDataWidgets.push_back(s5);
+		h5->addWidget(s5);
+		QObject::connect(s5, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, i](double newVal)
+		{
+			m_wavesGeometricData[6 * i + 4] = newVal;
+		});
+		vlay->addWidget(w5);
+
+		// A Widget
+		QWidget *w6 = new QWidget();
+		QHBoxLayout *h6 = new QHBoxLayout();
+		h6->setContentsMargins(1, 1, 1, 1);
+		w6->setLayout(h6);
+		QLabel *l6 = new QLabel();
+		l6->setText("A: ");
+		h6->addWidget(l6);
+		QDoubleSpinBox *s6 = new QDoubleSpinBox();
+		s6->setValue(m_wavesGeometricData[6 * i + 5]);
+		m_wavesGeometricDataWidgets.push_back(s6);
+		h6->addWidget(s6);
+		QObject::connect(s6, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, i](double newVal)
+		{
+			m_wavesGeometricData[6 * i + 5] = newVal;
+		});
+		vlay->addWidget(w6);
+
+		if (i == 0)
+		{
+			m_configNameLineEdit = new QLineEdit();
+			vlay->addWidget(m_configNameLineEdit);
+		}
+		else if(i == 1)
+		{
+			m_comboConfigNames = new QComboBox();
+			vlay->addWidget(m_comboConfigNames);
+
+			auto names = m_gerstnelParamManager.GetConfigsNames();
+			for (auto &n : names)
+			{
+				m_comboConfigNames->addItem(QString(n.c_str()));
+			}
+
+			QObject::connect(m_comboConfigNames, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index)
+			{
+				auto configFloats = m_gerstnelParamManager.GetConfigData(index);
+				for (int i = 0; i < 24; ++i)
+				{
+					if(i % 6 != 1 && i % 6 != 2)
+						m_wavesGeometricData[i] = configFloats[i];
+				}
+				m_wavesGeometricData = configFloats;
+				UpdateParamsWidgetsValues();
+
+				m_configNameLineEdit->setText(m_comboConfigNames->itemText(index));
+			});
+		}
+		else if (i == 2)
+		{
+			// Add Save button only for first widget
+			QPushButton *pb = new QPushButton();
+			pb->setText("Save");
+			QObject::connect(pb, &QPushButton::released, [this]()
+			{
+				if (m_wavesGeometricData.size() == 24
+					&& m_configNameLineEdit)
+				{
+					bool newConfigCreated = m_gerstnelParamManager.AddConfig(m_configNameLineEdit->text().toLatin1().data(), m_wavesGeometricData.data());
+					m_gerstnelParamManager.SaveToFile();
+					if (newConfigCreated)
+					{
+						m_comboConfigNames->addItem(m_configNameLineEdit->text().toLatin1().data());
+						m_comboConfigNames->setCurrentIndex(m_comboConfigNames->count() - 1);
+					}
+				}
+			});
+
+			vlay->addWidget(pb);
+		}
+
+		hlay->addWidget(vcontainer);
 	}
+}
+void OpenGLCanvas::UpdateParamsWidgetsValues()
+{
+	for(int i = 0; i < 24; ++i)
+		m_wavesGeometricDataWidgets[i]->setValue(m_wavesGeometricData[i]);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void OpenGLCanvas::InitAll()
@@ -56,6 +199,8 @@ void OpenGLCanvas::InitAll()
 	InitQtConnections();
 	InitTextures();
 	InitWaterParams();
+
+	CreateWaveEditingWidget();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void OpenGLCanvas::initializeGL()

@@ -50,7 +50,7 @@ void main(void)
             //gl_TessLevelOuter[3] = l3;
             //gl_TessLevelInner[0] = min(l1, l3);
             //gl_TessLevelInner[1] = min(l0, l2);
-			float constvvv = 3.0;
+			float constvvv = 2.0;
 			gl_TessLevelInner[0] = constvvv;
 			gl_TessLevelInner[1] = constvvv;
 			gl_TessLevelOuter[0] = constvvv;

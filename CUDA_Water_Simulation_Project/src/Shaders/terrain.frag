@@ -9,6 +9,7 @@ in TES_OUT
 {
     vec2 tc;
 	float id;
+	vec3 norm;
 } fs_in;
 
 
@@ -53,5 +54,6 @@ void main(void)
 
 	//color = vec4(redV, 0.0f, blueV, 1.0f);
 
-	color = texture(waterColorMap, fs_in.tc);
+	//color = texture(waterColorMap, fs_in.tc);
+	color = vec4(fs_in.norm, 1.0);
 }

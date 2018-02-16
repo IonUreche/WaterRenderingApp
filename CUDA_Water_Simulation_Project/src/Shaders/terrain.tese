@@ -21,6 +21,7 @@ out TES_OUT
 {
     vec2 tc;
 	float id;
+	vec3 norm;
 } tes_out;
 out vec4 ps;
 
@@ -31,12 +32,12 @@ void wave_function(in float waves[24], in float time, in vec3 pos,
 {
     float PI = 3.14159265358979323846264;
     P = pos;
-    for (int i = 0; i < 6; i += 6) 
+    for (int i = 0; i < 24; i += 6) 
 	{
         float A = waves[i] * waves[i+3];        // Amplitude
         float omega = 2.0 * PI / waves[i];       // Frequency
         float phi = waves[i+2] * omega;          // Phase
-        float Qi = waves[i+1]/(omega * A * 1.0); // Steepness
+        float Qi = waves[i+1]/(omega * A * 4.0); // Steepness
 
         float term = omega * dot(vec2(waves[i+4], waves[i+5]), vec2(pos.x, pos.z)) + phi * time;
         float C = cos(term);
@@ -113,4 +114,5 @@ void main(void)
     gl_Position = mvp * p;
     tes_out.tc = tc;
 	tes_out.id = tes_in[0].id;
+	tes_out.norm = N;
 }
