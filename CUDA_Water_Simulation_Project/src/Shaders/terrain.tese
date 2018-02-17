@@ -5,11 +5,15 @@ layout (quads) in;
 
 layout (binding = 0) uniform sampler2D tex_displacement;
 layout (binding = 2) uniform sampler2D waterNormalMap;
-uniform mat4 mvp;
 
+uniform mat4 mvp;
+uniform vec3 lightPos;
+uniform mat4 modelView_matrix;
+uniform mat4 proj_matrix;
 //uniform float dmap_depth;
 uniform float time;
 uniform float waves[24];
+uniform vec3 cameraPos;
 
 in TCS_OUT
 {
@@ -22,9 +26,10 @@ out TES_OUT
     vec2 tc;
 	float id;
 	vec3 norm;
+	vec3 viewv;
 } tes_out;
-out vec4 ps;
-
+out vec3 lightv;
+out vec3 viewv;
 
 // ********* WAVE FUNCTION ****************
 void wave_function(in float waves[24], in float time, in vec3 pos,
@@ -42,9 +47,9 @@ void wave_function(in float waves[24], in float time, in vec3 pos,
         float term = omega * dot(vec2(waves[i+4], waves[i+5]), vec2(pos.x, pos.z)) + phi * time;
         float C = cos(term);
         float S = sin(term);
-        P += vec3(pos.x + Qi * A * waves[i+4] * C,
+        P += vec3(Qi * A * waves[i+4] * C,
                   A * S,
-                  pos.z + Qi * A * waves[i+5] * C);
+                  Qi * A * waves[i+5] * C);
     }
     B = vec3(0.0);
     T = vec3(0.0);
@@ -58,7 +63,7 @@ void wave_function(in float waves[24], in float time, in vec3 pos,
 
         float WA = omega * A;
         float term = omega * dot(vec2(waves[i+4], waves[i+5]), vec2(P.x, P.z)) + phi * time;
-        float C = cos(term)/6.0;
+        float C = cos(term);
         float S = sin(term);
         B += vec3 (Qi * waves[i+4]*waves[i+4] * WA * S,
                    Qi * waves[i+4] * waves[i+5] * WA * S,
@@ -97,22 +102,26 @@ void main(void)
 
 	vec3 P, N, B, T;
     wave_function(waves, time, p.xyz, P, N, B, T);
+    lightv = vec3(dot(lightPos, B),
+				  dot(lightPos, T),
+				  dot(lightPos, N));
+    lightv = normalize(lightv);
 
-	//float omega = 2 * M_PI / L; // Frequency
-	//float phi = S * omega;    
-	//float Qi = Q/(omega * A * NWAVES);
-	//float term = omega * dot(vec2(DX, DY), vec2(p.x, p.z)) + phi * time;
-	//float C = cos(term);
-	//float S = sin(term);
-	//float xx = p.x + Qi * A * DX * C;
-	//float yy = A * S;
-	//float zz = p.z + Qi * A * DY * C;
-	//gl_Position = vec4(xx, yy, zz, 1.0);
-	//p = vec4(xx, yy, zz, 1.0);
+
+	vec3 pos = (modelView_matrix * vec4(P.xyz, 1.0)).xyz;
+	viewv = vec3(dot(pos, B),
+				 dot(pos, T),
+				 dot(pos, N));
+    viewv = normalize(viewv);
+
 	p = vec4(P, 1.0);
 
     gl_Position = mvp * p;
+	
     tes_out.tc = tc;
 	tes_out.id = tes_in[0].id;
 	tes_out.norm = N;
+	vec3 viewdir = cameraPos - gl_Position.xyz;
+	viewdir = normalize(viewdir);
+	tes_out.viewv = viewdir;
 }

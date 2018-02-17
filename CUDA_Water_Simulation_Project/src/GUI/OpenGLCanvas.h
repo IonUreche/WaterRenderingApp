@@ -154,4 +154,7 @@ private:
 
 	QLineEdit *m_configNameLineEdit = nullptr;
 	QComboBox *m_comboConfigNames = nullptr;
+
+	bool m_debugModeView = false;
+	bool m_lightModeView = false;
 };

@@ -240,7 +240,7 @@ void OpenGLCanvas::InitTextures()
 
 	for (int i = 0; i < 6; ++i)
 	{
-		QString s = "src/Resources/Skyboxes/12/sky12_";
+		QString s = "src/Resources/Skyboxes/12/test/sky12_";
 		QOpenGLTexture::CubeMapFace face;
 		switch (i)
 		{
@@ -384,6 +384,9 @@ void OpenGLCanvas::DrawAxis(glm::mat4x4 &mvp)
 	GLint uniMvp = glGetUniformLocation(m_axisShader, "mvp");
 	glUniformMatrix4fv(uniMvp, 1, GL_FALSE, glm::value_ptr(m_mvp));
 
+	GLuint pos0Location = glGetUniformLocation(m_axisShader, "pos0");
+	glUniform3fv(pos0Location, 1, glm::value_ptr(glm::vec3(0.0)));
+
 	// position
 	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 	glBufferData(GL_ARRAY_BUFFER, m_axisCoords.size() * sizeof(GLfloat), m_axisCoords.data(), GL_STATIC_DRAW);
@@ -414,6 +417,9 @@ void OpenGLCanvas::DrawLightCube(glm::mat4x4 &mvp)
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(1);
 
+	GLuint pos0Location = glGetUniformLocation(m_axisShader, "pos0");
+	glUniform3fv(pos0Location, 1, glm::value_ptr(m_lightPosition));
+
 	GLuint mvpLocation = glGetUniformLocation(m_skyboxShader, "mvp");
 	glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
@@ -438,11 +444,28 @@ void OpenGLCanvas::DrawWater(glm::mat4x4 &mvp)
 	GLuint mvpLocation = glGetUniformLocation(m_terrainShader, "mvp");
 	glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(m_mvp));
 
+	GLuint modelViewLocation = glGetUniformLocation(m_terrainShader, "modelView_matrix");
+	glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, glm::value_ptr(camera.projection));
+
+	GLuint projLocation = glGetUniformLocation(m_terrainShader, "proj_matrix");
+	glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(camera.view));
+
 	GLuint timeLocation = glGetUniformLocation(m_terrainShader, "time");
 	glUniform1f(timeLocation, m_time);
 
+	GLuint debugModeLocation = glGetUniformLocation(m_terrainShader, "debug_mode_enabled");
+	glUniform1i(debugModeLocation, m_debugModeView);
+
+	GLuint lightPosLocation = glGetUniformLocation(m_terrainShader, "lightPos");
+	glUniform3fv(lightPosLocation, 1, glm::value_ptr(m_lightPosition));
+
+	GLuint cameraPosLocation = glGetUniformLocation(m_terrainShader, "cameraPos");
+	glUniform3fv(cameraPosLocation, 1, glm::value_ptr(camera.camera_position));
+
 	GLuint wavesDataLocation = glGetUniformLocation(m_terrainShader, "waves");
 	glUniform1fv(wavesDataLocation, 24 * sizeof(float), (const GLfloat *)m_wavesGeometricData.data());
+
+
 
 	//glUniform1fv("waves", (const GLfloat *)m_wavesGeometricData, GW * sizeof(Wave) / sizeof(float), 1);
 
@@ -471,9 +494,11 @@ void OpenGLCanvas::DrawWater(glm::mat4x4 &mvp)
 	//glEnable(GL_TEXTURE0);
 	//glEnable(GL_TEXTURE1);
 	//glEnable(GL_TEXTURE2);
+	//glEnable(GL_TEXTURE0);
 	m_texture->bind(0);
 	m_waterColor->bind(1);
 	m_waterNormal->bind(2);
+	m_skyboxTex->bind(3);
 	////m_program->setUniformValue("colorTexture", 0);
 	//
 	if(m_isWireframeMode)
@@ -559,22 +584,64 @@ void OpenGLCanvas::keyPressEvent(QKeyEvent *event)
 {
 	switch (event->key()) {
 	case Qt::Key_W:
-		camera.Move(FORWARD);
+		if (m_lightModeView)
+		{
+			m_lightPosition += glm::vec3(0.5, 0.0, 0.0);
+		}
+		else
+		{
+			camera.Move(FORWARD);
+		}
 		break;
 	case Qt::Key_A:
-		camera.Move(LEFT);
+		if (m_lightModeView)
+		{
+			m_lightPosition += glm::vec3(0.0, 0.0, -0.5);
+		}
+		else
+		{
+			camera.Move(LEFT);
+		}
 		break;
 	case Qt::Key_S:
-		camera.Move(BACK);
+		if (m_lightModeView)
+		{
+			m_lightPosition += glm::vec3(-0.5, 0.0, 0.0);
+		}
+		else
+		{
+			camera.Move(BACK);
+		}
 		break;
 	case Qt::Key_D:
-		camera.Move(RIGHT);
+		if (m_lightModeView)
+		{
+			m_lightPosition += glm::vec3(0.0, 0.0, 0.5);
+		}
+		else
+		{
+			camera.Move(RIGHT);
+		}
 		break;
 	case Qt::Key_Q:
-		camera.Move(DOWN);
+		if (m_lightModeView)
+		{
+			m_lightPosition += glm::vec3(0.0, -0.5, 0.0);
+		}
+		else
+		{
+			camera.Move(DOWN);
+		}
 		break;
 	case Qt::Key_E:
-		camera.Move(UP);
+		if (m_lightModeView)
+		{
+			m_lightPosition += glm::vec3(0.0, 0.5, 0.0);
+		}
+		else
+		{
+			camera.Move(UP);
+		}
 		break;
 	case Qt::Key_T:
 		m_isWireframeMode ^= 1;
@@ -619,6 +686,14 @@ void OpenGLCanvas::keyPressEvent(QKeyEvent *event)
 		else
 			m_waterParams.Q -= 0.1;
 		break;
+	}
+	case Qt::Key_P:
+	{
+		m_debugModeView = !m_debugModeView;
+	}
+	case Qt::Key_L:
+	{
+		m_lightModeView = !m_lightModeView;
 	}
 	}
 }
@@ -709,9 +784,9 @@ void OpenGLCanvas::InitGeometry()
 	m_lightCubeVertices.resize(36 * 3);
 	for (int i = 0; i < 36; ++i)
 	{
-		m_lightCubeVertices[i * 3] = m_lightPosition.x + m_skyboxVertices[i * 3] * m_lightCubeSize;
-		m_lightCubeVertices[i * 3 + 1] = m_lightPosition.y + m_skyboxVertices[i * 3 + 1] * m_lightCubeSize;
-		m_lightCubeVertices[i * 3 + 2] = m_lightPosition.z + m_skyboxVertices[i * 3 + 2] * m_lightCubeSize;
+		m_lightCubeVertices[i * 3] = m_skyboxVertices[i * 3] * m_lightCubeSize;
+		m_lightCubeVertices[i * 3 + 1] = m_skyboxVertices[i * 3 + 1] * m_lightCubeSize;
+		m_lightCubeVertices[i * 3 + 2] = m_skyboxVertices[i * 3 + 2] * m_lightCubeSize;
 	}
 
 	m_lightColorVertices.resize(36 * 3);
