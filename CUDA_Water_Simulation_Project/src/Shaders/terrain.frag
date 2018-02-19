@@ -10,7 +10,7 @@ in TES_OUT
 	vec3 norm;
 	vec3 viewv;
 } fs_in;
-out vec4 color;
+layout (location = 0) out vec4 color;
 
 uniform int debug_mode_enabled = 0;
 
@@ -47,7 +47,8 @@ void main(void)
 		vec3 skyReflColor = 0.5 * texture(skybox, refl).xyz;
         color = vec4(mix(oceanblue, skyReflColor, fresnel) + specular, 1.0);
 		//color = texture(skybox, N);
-		
+		//color2 = color + vec4(0.5, 0.0, 0.0, 0.0);
+		//color = vec4(1.0, 1.0, 0.0, 1.0);
 	}
 }
 

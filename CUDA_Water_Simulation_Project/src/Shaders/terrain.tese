@@ -3,13 +3,11 @@
 
 layout (quads) in;
 
-layout (binding = 0) uniform sampler2D tex_displacement;
 layout (binding = 2) uniform sampler2D waterNormalMap;
 
 uniform mat4 mvp;
 uniform vec3 lightPos;
 uniform mat4 modelView_matrix;
-uniform mat4 proj_matrix;
 //uniform float dmap_depth;
 uniform float time;
 uniform float waves[24];

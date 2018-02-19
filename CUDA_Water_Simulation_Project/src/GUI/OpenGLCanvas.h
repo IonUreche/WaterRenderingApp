@@ -10,6 +10,7 @@
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QOpenGLTexture>
+#include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
@@ -90,6 +91,8 @@ protected:
 	void DrawWater(glm::mat4x4 &mvp);
 	void DrawSkybox(glm::mat4x4 &mvp);
 	void DrawLightCube(glm::mat4x4 &mvp);
+	void DrawFinalPass();
+	//void DrawScenePortalRectangle();
 
 	float GetNextRand();
 
@@ -102,7 +105,14 @@ private:
 	GLuint m_colorsBufferId;
 	GLuint m_skyboxVBO;
 	GLuint m_lightPosVbo;
+	GLuint m_lightTextureCoordsVbo;
 	GLuint m_lightColorVbo;
+	GLuint vbo_fbo_vertices;
+	GLuint vbo_fbo_tex_vertices;
+
+	GLuint m_colorTex[2];
+	GLuint m_depthTex;
+	GLuint m_fbo;
 
 	// Events control variables
 	bool m_mousePressed = false;
@@ -122,7 +132,7 @@ private:
 	std::vector<GLfloat> m_patch_vert;
 	std::vector<GLfloat> m_skyboxVertices;
 	std::vector<GLfloat> m_lightCubeVertices;
-	std::vector<GLfloat> m_lightColorVertices;
+	std::vector<GLfloat> m_lightTexCoord;
 	GLfloat m_cubeSize;
 	GLfloat m_lightCubeSize;
 
@@ -130,13 +140,15 @@ private:
 	GLuint m_axisShader;
 	GLuint m_terrainShader;
 	GLuint m_skyboxShader;
+	GLuint m_filterShader;
+	GLuint m_lightCubeShader;
 
 	// Textures
-	QOpenGLTexture *m_texture;
-	QOpenGLTexture *m_waterColor;
-	QOpenGLTexture *m_waterNormal;
-	//std::vector<QOpenGLTexture*> m_skyboxFaces;
-	QOpenGLTexture *m_skyboxTex;
+	QOpenGLTexture* m_texture;
+	QOpenGLTexture* m_waterColor;
+	QOpenGLTexture* m_waterNormal;
+	QOpenGLTexture* m_skyboxTex;
+	//QOpenGLFramebufferObject* m_frameBufferTexture;
 
 	QShortcut *m_saveCameraLocation;
 
@@ -144,10 +156,6 @@ private:
 	std::vector<float> m_wavesGeometricData;
 	std::vector<QDoubleSpinBox*> m_wavesGeometricDataWidgets;
 
-	//randomness stuff
-	//std::random_device rd;  //Will be used to obtain a seed for the random number engine
-	//std::mt19937 *gen = nullptr; //Standard mersenne_twister_engine seeded with rd()
-	//std::uniform_real_distribution<> *dis;
 	Rand_double rd{0.0, 1.0};
 
 	GerstnelParamManager m_gerstnelParamManager;
@@ -157,4 +165,6 @@ private:
 
 	bool m_debugModeView = false;
 	bool m_lightModeView = false;
+
+	int targetCnt = 0;
 };
