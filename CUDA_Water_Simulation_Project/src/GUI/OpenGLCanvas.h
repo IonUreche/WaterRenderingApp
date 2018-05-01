@@ -7,20 +7,23 @@
 #include <QOpenGLWidget>
 #include <QOpenGLVersionProfile>
 #include <QOpenGLFunctions_4_5_Core>
-#include <QMouseEvent>
-#include <QKeyEvent>
 #include <QOpenGLTexture>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>
+
+#include <QMouseEvent>
+#include <QKeyEvent>
 #include <QShortcut>
 #include <QLineEdit>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 
-#include "Camera.h"
 #include "GerstnelParamManager.h"
+
+#include "TextureManager.h"
+#include "Renderer.h"
 
 struct waterParams
 {
@@ -89,6 +92,7 @@ protected:
 	// Rendering
 	void DrawAxis(glm::mat4x4 &mvp);
 	void DrawWater(glm::mat4x4 &mvp);
+	void DrawFlowWater(glm::mat4x4 &mvp);
 	void DrawSkybox(glm::mat4x4 &mvp);
 	void DrawLightCube(glm::mat4x4 &mvp);
 	void DrawFinalPass();
@@ -139,6 +143,7 @@ private:
 	// Shaders
 	GLuint m_axisShader;
 	GLuint m_terrainShader;
+	GLuint m_waterflowShader;
 	GLuint m_skyboxShader;
 	GLuint m_filterShader;
 	GLuint m_lightCubeShader;
@@ -167,4 +172,7 @@ private:
 	bool m_lightModeView = false;
 
 	int targetCnt = 0;
+
+	TextureManager* m_pTextureManager;
+	Renderer* m_renderer;
 };

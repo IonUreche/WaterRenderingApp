@@ -14,6 +14,7 @@
 #include <QLabel>
 #include <QPushButton>
 
+#include "ShaderManager.h"
 
 #define OPENGL_MAJOR_VERSION 4
 #define OPENGL_MINOR_VERSION 5
@@ -25,6 +26,8 @@ OpenGLCanvas::OpenGLCanvas(QWidget *parent, Qt::WindowFlags f)
 	setMouseTracking(true);
 	setFocusPolicy(Qt::StrongFocus);
 	setFixedSize(QSize(1024, 768));
+
+	
 }
 /////////////////////////////////////////////////////////////////////////////////////
 OpenGLCanvas::~OpenGLCanvas()
@@ -38,6 +41,10 @@ float OpenGLCanvas::GetNextRand()
 /////////////////////////////////////////////////////////////////////////////////////
 void OpenGLCanvas::CreateWaveEditingWidget()
 {
+	m_pTextureManager = new TextureManager();
+	m_renderer = new Renderer();
+	m_renderer->InitShaders();
+
 	QWidget *wid = new QWidget(this);
 	QHBoxLayout *hlay = new QHBoxLayout();
 	hlay->setContentsMargins(1, 1, 1, 1);
@@ -215,26 +222,6 @@ void OpenGLCanvas::InitTextures()
 {
 	GLint heightMapLoc = glGetUniformLocation(m_axisShader, "tex_displacement");
 	glUniform1i(heightMapLoc, 0);
-	// Prepare texture
-	//m_frameBufferTexture = new QOpenGLFramebufferObject(QSize(1024, 768),
-	//													QOpenGLFramebufferObject::Attachment::CombinedDepthStencil);
-	//m_frameBufferTexture->setMinificationFilter(QOpenGLTexture::Nearest);
-	//m_frameBufferTexture->setMagnificationFilter(QOpenGLTexture::Nearest);
-	//m_frameBufferTexture->bind();
-	//QGLFrameBufferObject * fbo = new QGLFramebufferObject(200, 200, QGLFramebufferObject::NoAttachment, GL_TEXTURE_2D, GL_RGBA32F);
-	//glMatrixMode(GL_PROJECTION);
-	//glLoadIdentity();
-	//glOrtho(0.0f, fbo->size().width(), fbo->size().height(), 0.0f, 0.0f, 1.0f);
-	//fbo->bind();
-	//glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-	//fbo->release();
-	//fbo->toImage().save("test.jpg"));
-
-	// Prepare texture
-	//m_texture = new QOpenGLTexture(QImage("src/Resources/disp_map.jpg").mirrored());
-	//m_texture->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-	//m_texture->setMagnificationFilter(QOpenGLTexture::Linear);
-	//m_texture->bind(0);
 
 	m_waterColor = new QOpenGLTexture(QImage("src/Resources/Water/water11.jpg").mirrored());
 	GLint waterColorMapLoc = glGetUniformLocation(m_axisShader, "waterColorMap");
@@ -296,19 +283,8 @@ void OpenGLCanvas::InitBuffers()
 	glGenVertexArrays(1, &m_vao);
 	glBindVertexArray(m_vao);
 	glGenBuffers(1, &m_vbo);
-	//glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-	//glBufferData(GL_ARRAY_BUFFER, m_axisCoords.size() * sizeof(GLfloat), m_axisCoords.data(), GL_STATIC_DRAW);
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	//glEnableVertexAttribArray(0);
-
 	glGenBuffers(1, &m_colorsBufferId);
-	//glBindBuffer(GL_ARRAY_BUFFER, m_colorsBufferId);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * m_coordinateAxisColors.size(), m_coordinateAxisColors.data(), GL_STATIC_DRAW);
-	//glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-	//glEnableVertexAttribArray(1);
-
 	glGenBuffers(1, &m_skyboxVBO);
-
 	glGenBuffers(1, &m_lightPosVbo);
 	glGenBuffers(1, &m_lightTextureCoordsVbo);
 	glGenBuffers(1, &vbo_fbo_vertices);
@@ -331,7 +307,6 @@ void OpenGLCanvas::InitBuffers()
 	//glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT24, 1024, 768);
 	//glFramebufferRenderbuffer(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_fb);
 
-
 	//GLuint m_colorTex[2];
 	// create n RGBA color textures
 	glGenTextures(2, m_colorTex);
@@ -345,15 +320,6 @@ void OpenGLCanvas::InitBuffers()
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	}
-
-	//GLuint /*colorTex, */m_depthTex, m_fbo;
-	// create a RGBA color texture
-	//glGenTextures(1, &colorTex);
-	//glBindTexture(GL_TEXTURE_2D, colorTex);
-	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-	//	width, height,
-	//	0, GL_RGBA, GL_UNSIGNED_BYTE,
-	//	NULL);
 
 	// create a depth texture
 	glGenTextures(1, &m_depthTex);
@@ -375,7 +341,6 @@ void OpenGLCanvas::InitBuffers()
 			GL_COLOR_ATTACHMENT0 + i, m_colorTex[i], 0);
 	}
 	// attach color
-	//glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, colorTex, 0);
 	glFramebufferTexture(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthTex, 0);
 
 	GLenum e = glCheckFramebufferStatus(GL_DRAW_FRAMEBUFFER);
@@ -468,17 +433,17 @@ void OpenGLCanvas::paintGL()
 	glDrawBuffers(2, attachments);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	DrawSkybox(m_mvp);
-	DrawAxis(m_mvp);
-	DrawWater(m_mvp);
-	DrawLightCube(m_mvp);
+	//DrawSkybox(m_mvp);
+	//DrawAxis(m_mvp);
+	//DrawWater(m_mvp);
+	DrawFlowWater(m_mvp);
+
+	//DrawLightCube(m_mvp);
 	//DrawScenePortalRectangle();
 	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebufferObject());
 	glUseProgram(m_filterShader);
 
 	DrawFinalPass();
-
-	//m_frameBufferTexture->toImage().save("test.jpg");
 }
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -508,9 +473,7 @@ void OpenGLCanvas::DrawAxis(glm::mat4x4 &mvp)
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
-
 	glEnable(GL_TEXTURE0);
-	//m_frameBufferTexture->bind();
 
 	// draw 
 	glDrawArrays(GL_LINES, 0, m_axisCoords.size());
@@ -526,10 +489,10 @@ void OpenGLCanvas::DrawLightCube(glm::mat4x4 &mvp)
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);
 
-	glBindBuffer(GL_ARRAY_BUFFER, m_lightTextureCoordsVbo);
-	glBufferData(GL_ARRAY_BUFFER, m_lightTexCoord.size() * sizeof(GLfloat), m_lightTexCoord.data(), GL_STATIC_DRAW);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
-	glEnableVertexAttribArray(1);
+	//glBindBuffer(GL_ARRAY_BUFFER, m_lightTextureCoordsVbo);
+	//glBufferData(GL_ARRAY_BUFFER, m_lightTexCoord.size() * sizeof(GLfloat), m_lightTexCoord.data(), GL_STATIC_DRAW);
+	//glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	//glEnableVertexAttribArray(1);
 
 	GLuint pos0Location = glGetUniformLocation(m_lightCubeShader, "pos0");
 	glUniform3fv(pos0Location, 1, glm::value_ptr(m_lightPosition));
@@ -537,13 +500,12 @@ void OpenGLCanvas::DrawLightCube(glm::mat4x4 &mvp)
 	GLuint mvpLocation = glGetUniformLocation(m_lightCubeShader, "mvp");
 	glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
-	glEnable(GL_TEXTURE0);
-	GLuint sceneTextureLocation = glGetUniformLocation(m_lightCubeShader, "texFramebuffer");
-	glUniform1i(sceneTextureLocation, 0);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_colorTex[0]);
-	//m_waterColor->bind();
+	//glEnable(GL_TEXTURE0);
+	//GLuint sceneTextureLocation = glGetUniformLocation(m_lightCubeShader, "texFramebuffer");
+	//glUniform1i(sceneTextureLocation, 0);
+	//
+	//glActiveTexture(GL_TEXTURE0);
+	//glBindTexture(GL_TEXTURE_2D, m_colorTex[0]);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	// draw
@@ -561,7 +523,6 @@ void OpenGLCanvas::DrawWater(glm::mat4x4 &mvp)
 	// define the index array for the outputs
 	GLuint attachments[2] = { GL_COLOR_ATTACHMENT1, GL_DEPTH_ATTACHMENT/*, GL_COLOR_ATTACHMENT2*/ };
 	glDrawBuffers(2, attachments);
-
 
 	glBindVertexArray(m_vao);
 
@@ -594,22 +555,72 @@ void OpenGLCanvas::DrawWater(glm::mat4x4 &mvp)
 	GLuint wavesDataLocation = glGetUniformLocation(m_terrainShader, "waves");
 	glUniform1fv(wavesDataLocation, 24 * sizeof(float), (const GLfloat *)m_wavesGeometricData.data());
 
-	//glEnable(GL_TEXTURE0);
-	//glEnable(GL_TEXTURE1);
-	//glEnable(GL_TEXTURE2);
 	glEnable(GL_TEXTURE0);
-	//m_frameBufferTexture->bind();
-	//glBindTexture()
-	//m_texture->bind(0);
+
 	m_waterColor->bind(1);
 	m_waterNormal->bind(2);
 	m_skyboxTex->bind(3);
 
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	////m_program->setUniformValue("colorTexture", 0);
-	//
 	if(m_isWireframeMode)
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else
+	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
+	glPatchParameteri(GL_PATCH_VERTICES, 4);
+	glDrawArraysInstanced(GL_PATCHES, 0, 4, 64 * 64);
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void OpenGLCanvas::DrawFlowWater(glm::mat4x4 &mvp)
+{
+	// DRAW TERRAIN PATCHES
+	//GLuint m_waterflowShader = ShaderManager::GetInstance()->GetShaderProgram("waterflow");
+	glUseProgram(m_waterflowShader);
+
+	// bind the framebuffer as the output framebuffer
+	glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
+
+	// define the index array for the outputs
+	GLuint attachments[2] = { GL_COLOR_ATTACHMENT1, GL_DEPTH_ATTACHMENT/*, GL_COLOR_ATTACHMENT2*/ };
+	glDrawBuffers(2, attachments);
+
+	glBindVertexArray(m_vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+	glBufferData(GL_ARRAY_BUFFER, m_patch_vert.size() * sizeof(GLfloat), m_patch_vert.data(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(0);
+
+	GLuint mvpLocation = glGetUniformLocation(m_waterflowShader, "mvp");
+	glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(m_mvp));
+
+	GLuint modelViewLocation = glGetUniformLocation(m_waterflowShader, "modelView_matrix");
+	glUniformMatrix4fv(modelViewLocation, 1, GL_FALSE, glm::value_ptr(camera.projection));
+
+	//GLuint projLocation = glGetUniformLocation(m_terrainShader, "proj_matrix");
+	//glUniformMatrix4fv(projLocation, 1, GL_FALSE, glm::value_ptr(camera.view));
+
+	GLuint timeLocation = glGetUniformLocation(m_waterflowShader, "time");
+	glUniform1f(timeLocation, m_time);
+
+	GLuint debugModeLocation = glGetUniformLocation(m_waterflowShader, "debug_mode_enabled");
+	glUniform1i(debugModeLocation, m_debugModeView);
+
+	GLuint lightPosLocation = glGetUniformLocation(m_waterflowShader, "lightPos");
+	glUniform3fv(lightPosLocation, 1, glm::value_ptr(m_lightPosition));
+
+	GLuint cameraPosLocation = glGetUniformLocation(m_waterflowShader, "cameraPos");
+	glUniform3fv(cameraPosLocation, 1, glm::value_ptr(camera.camera_position));
+
+	glEnable(GL_TEXTURE0);
+
+	m_waterColor->bind(1);
+	m_waterNormal->bind(2);
+	m_skyboxTex->bind(3);
+
+	if (m_isWireframeMode)
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
@@ -623,19 +634,6 @@ void OpenGLCanvas::DrawWater(glm::mat4x4 &mvp)
 /////////////////////////////////////////////////////////////////////////////////////
 void OpenGLCanvas::DrawSkybox(glm::mat4x4 &mvp)
 {
-	// bind the framebuffer as the output framebuffer
-	//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
-	//// define the index array for the outputs
-	//GLuint attachments[2] = { GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-	//glDrawBuffers(2, attachments);
-	//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
-	//glClearColor(0.4f, 0.4f, 0.8f, 1.0f);
-	// define the index array for the outputs
-	//GLuint attachments[2] = { GL_COLOR_ATTACHMENT1, GL_DEPTH_ATTACHMENT/*, GL_COLOR_ATTACHMENT2*/ };
-	//glDrawBuffers(2, attachments);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-
 	glDepthMask(GL_FALSE);
 	glUseProgram(m_skyboxShader);
 	
@@ -674,26 +672,9 @@ void OpenGLCanvas::DrawSkybox(glm::mat4x4 &mvp)
 /////////////////////////////////////////////////////////////////////////////////////
 void OpenGLCanvas::DrawFinalPass()
 {
-	//glBindFramebuffer(GL_DRAW_FRAMEBUFFER, defaultFramebufferObject());
-	//glUseProgram(m_filterShader);
-
-	//glClearColor(0.1f, 0.5f, 0.3f, 1.0f);
-	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//GLuint fbo = this->defaultFramebufferObject();
-	//glBindTexture(GL_TEXTURE_2D, fbo);
-
-	//GLuint textureLocation = glGetUniformLocation(m_filterShader, "renderedTexture");
-	//glUniform1f(textureLocation, fbo);
-
 	GLuint timeLocation = glGetUniformLocation(m_filterShader, "time");
 	glUniform1f(timeLocation, m_time);
 
-	//auto matr = glm::ortho(0.0f, (float)width(), (float)height(), 0.0f, -1.0f, 1.0f);
-	//GLuint ortoMatrixLocation = glGetUniformLocation(m_filterShader, "orto_matrix");
-	//glUniformMatrix4fv(ortoMatrixLocation, 1, GL_FALSE, glm::value_ptr(matr));
-
-	/* init_resources */
 	GLfloat fbo_vertices[] = {
 		-1.0f, -1.0f,
 		1.0f, -1.0f,
@@ -708,55 +689,6 @@ void OpenGLCanvas::DrawFinalPass()
 		1.0f, 1.0f,
 		};
 
-	//GLfloat fbo_tex_vertices[] = {
-	//	0.0f, 0.0f,
-	//	1.0f, 0.0f,
-	//	1.0f, 1.0f,
-	//	1.0f, 0.0f,
-	//	0.0f,  1.0f,
-	//	1.0f,  1.0f
-	//};
-	/*
-	int cnt = 0;
-	//int targetCnt = 1;
-	std::vector<GLfloat> fbo_tex_vertices(8), texVert;
-	bool vis[4] = { false, false, false, false };
-	for (int i = 0; i < 4; ++i)
-	{
-		vis[i] = true;
-		fbo_tex_vertices[0] = ff[2*i];
-		fbo_tex_vertices[1] = ff[2 * i+1];
-		for (int j = 0; j < 4; ++j)
-		{
-			if(vis[j]) continue;
-			vis[j] = true;
-			fbo_tex_vertices[2] = ff[2 * j];
-			fbo_tex_vertices[3] = ff[2 * j + 1];
-			for (int k = 0; k < 4; ++k)
-			{
-				if (vis[k]) continue;
-				vis[k] = true;
-				fbo_tex_vertices[4] = ff[2 * k];
-				fbo_tex_vertices[5] = ff[2 * k + 1];
-				for (int l = 0; l < 4; ++l)
-				{
-					if (vis[l]) continue;
-					fbo_tex_vertices[6] = ff[2 * l];
-					fbo_tex_vertices[7] = ff[2 * l + 1];
-
-					if (cnt == targetCnt)
-					{
-						texVert = fbo_tex_vertices;
-					}
-					cnt++;
-				}
-				vis[k] = false;
-			}
-			vis[j] = false;
-		}
-		vis[i] = false;
-	}
-*/
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_vertices);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(fbo_vertices), fbo_vertices, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
@@ -764,18 +696,15 @@ void OpenGLCanvas::DrawFinalPass()
 
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_fbo_tex_vertices);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(fbo_tex_vertices), fbo_tex_vertices, GL_STATIC_DRAW);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * texVert.size(), fbo_tex_vertices.data(), GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(1);
 
 	glEnable(GL_TEXTURE0);
 	GLuint sceneTextureLocation = glGetUniformLocation(m_filterShader, "renderedTexture");
 	glUniform1i(sceneTextureLocation, 0);
-	//
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_colorTex[0]);
-	//glEnable(GL_TEXTURE2);
-	//m_waterColor->bind(2);
+
 
 	//if (m_isWireframeMode)
 	//{
@@ -786,15 +715,6 @@ void OpenGLCanvas::DrawFinalPass()
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	//}
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	//glBindFramebuffer(GL_FRAMEBUFFER, fbo);
-	// draw (without glutSwapBuffers)
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//glViewport(0, 0, 1024, 768);
 }
 /////////////////////////////////////////////////////////////////////////////////////
 void OpenGLCanvas::resizeGL(int w, int h)
@@ -1040,12 +960,8 @@ void OpenGLCanvas::InitGeometry()
 	}
 
 	m_lightTexCoord.resize(36 * 2);
-	for (int i = 0; i < 1; i += 12)
+	for (int i = 0; i < 6; i += 12)
 	{
-		//m_lightTexCoord[i * 3] = m_lightColor.x / 255.0f;
-		//m_lightTexCoord[i * 3 + 1] = m_lightColor.y / 255.0f;
-		//m_lightTexCoord[i * 3 + 2] = m_lightColor.z / 255.0f;
-
 		m_lightTexCoord[i * 8] = 0.0f;
 		m_lightTexCoord[i * 8 + 1] = 0.0f;
 
@@ -1075,6 +991,8 @@ void OpenGLCanvas::InitShaders()
 	m_lightCubeShader = create_program("src/Shaders/lightCubeShader.vert", "src/Shaders/lightCubeShader.frag", "", "");
 	m_terrainShader = create_program("src/Shaders/terrain.vert", "src/Shaders/terrain.frag",
 		"src/Shaders/terrain.tesc", "src/Shaders/terrain.tese");
+	m_waterflowShader = create_program("src/Shaders/WaterFlow/waterflow.vert", "src/Shaders/WaterFlow/waterflow.frag",
+		"src/Shaders/WaterFlow/waterflow.tesc", "src/Shaders/WaterFlow/waterflow.tese");
 	m_skyboxShader = create_program("src/Shaders/skybox.vert", "src/Shaders/skybox.frag", "", "");
 	m_filterShader = create_program("src/Shaders/customEffect.vert", "src/Shaders/customEffect.frag", "", "");
 }
@@ -1130,21 +1048,6 @@ GLuint OpenGLCanvas::create_program(const char *path_vert_shader, const char *pa
 /////////////////////////////////////////////////////////////////////////////////////
 void OpenGLCanvas::InitWaterParams()
 {
-	//m_waterParams.L = (GetNextRand() * 0.5f + 0.3f);
-	//m_waterParams.Q = 5.f*(GetNextRand() * 2.f + 1.f);
-	//m_waterParams.A = 0.03f;
-	//m_waterParams.W = 4;
-	//m_waterParams.S = 0.05f * std::sqrt(M_PI / m_waterParams.L);
-
-	//m_waterParams.L = 3.f;
-	//m_waterParams.Q = 0.8f;
-	//m_waterParams.A = 0.03f * m_waterParams.L;
-	//m_waterParams.S = 1.15f;
-	//glm::vec2 dir(1.f, 0.8f);
-	//dir = glm::normalize(dir);
-	//m_waterParams.DX = dir.x;
-	//m_waterParams.DY = dir.y;
-
 	float Q[4] = { 0.1f, 0.0001f, 0.0001f, 0.0001f };
 	float S[4] = { 2.15f, 0.8f, 0.4f, 0.3f };
 	float L[4] = { 15.f, 8.13f, 5.42f, 3.96f };

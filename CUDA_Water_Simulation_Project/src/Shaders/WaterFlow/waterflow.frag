@@ -8,14 +8,12 @@ in TES_OUT
     vec2 tc;
 	float id;
 	vec3 norm;
-	vec3 viewv;
 } fs_in;
 layout (location = 0) out vec4 color;
 
 uniform int debug_mode_enabled = 0;
 
-
-in vec3 lightv;
+//in vec3 lightv;
 in vec3 viewv;
 
 void main(void)
@@ -37,22 +35,22 @@ void main(void)
 	{
 		//vec3 N = texture2D(normalmap, texcoord*0.125).xyz * 2.0 - 1.0;
         vec3 N = fs_in.norm;//normalize(N);
-        vec3 specular = vec3(1.0) * pow(clamp(dot(reflect(normalize(lightv), N), viewv), 0.0, 1.0), 50.0);
+        //vec3 specular = vec3(1.0) * pow(clamp(dot(reflect(normalize(lightv), N), viewv), 0.0, 1.0), 50.0);
         vec3 oceanblue = vec3(0.0, 0.25, 0.63);
         vec3 skyblue = vec3(0.39, 0.52, 0.93) * 0.9;
         const float R_0 = 0.4;
         float fresnel = R_0 + (1.0 - R_0) * pow((1.0 - dot(-normalize(viewv), N)), 5.0);
         fresnel = max(0.0, min(fresnel, 1.0));
-		vec3 refl = reflect(-fs_in.viewv, N);
+		vec3 refl = reflect(-viewv, N);
 		vec3 skyReflColor = 0.5 * texture(skybox, refl).xyz;
-        color = vec4(mix(oceanblue, skyReflColor, fresnel) + specular, 1.0);
+        color = vec4(mix(oceanblue, skyReflColor, fresnel)/* + specular*/, 1.0);
 		//color = texture(skybox, N);
 		//color2 = color + vec4(0.5, 0.0, 0.0, 0.0);
 		//color = vec4(1.0, 1.0, 0.0, 1.0);
 	}
 }
 
-
+/*
 
 // 2D Random
 float random (in vec2 st) {
@@ -84,3 +82,5 @@ float noise (in vec2 st) {
             (c - a)* u.y * (1.0 - u.x) +
             (d - b) * u.x * u.y;
 }
+
+*/
