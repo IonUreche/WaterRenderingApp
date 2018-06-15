@@ -3,11 +3,12 @@
 out VS_OUT
 {
     vec2 tc;
-	float id;
 } vs_out;
 
-uniform int patchSize;
+uniform float patchSize;
 uniform int gridSize;
+
+const vec4 plane = vec4(0, -1, 0, 15);
 
 void main(void)
 {
@@ -19,11 +20,9 @@ void main(void)
     int x = gl_InstanceID & (gridSize - 1);
     int y = gl_InstanceID / gridSize;
 
-	vs_out.tc = vertices[gl_VertexID].xz;
-
+    vs_out.tc = vertices[gl_VertexID].xz;
     vec3 pos3 = patchSize * (vertices[gl_VertexID].xyz + vec3(x, 0.0, y));
 	vec4 pos = vec4(pos3, 1.0);
 	gl_Position = pos;
-
-	vs_out.id = gl_InstanceID;
+	gl_ClipDistance[0] = dot(pos, plane);
 }

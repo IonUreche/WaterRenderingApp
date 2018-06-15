@@ -1,22 +1,18 @@
 #pragma once
 #include "IDrawable.h"
-#include <vector>
-#include "glm/vec4.hpp"
 
-class Terrain : public IDrawable 
+class Mesh : public IDrawable
 {
 public:
-	Terrain(QOpenGLContext *glContext, GLuint fbo);
-	~Terrain();
+	Mesh(QOpenGLContext *glContext);
+	~Mesh();
 
 	void InitGeometry() override;
 	void InitBuffers() override;
 	void Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos) override;
-	void SetPlane(glm::vec4 plane) { m_plane = plane; }
 
-private:
+protected:
 	GLuint m_vbo;
 	std::vector<GLfloat> m_patch_vert;
-	glm::vec4 m_plane;
 };
 

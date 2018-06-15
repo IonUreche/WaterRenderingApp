@@ -5,17 +5,17 @@ layout (vertices = 4) out;
 in VS_OUT
 {
     vec2 tc;
-	float id;
+	//float id;
 } tcs_in[];
 
 out TCS_OUT
 {
     vec2 tc;
-	float id;
+	//float id;
 } tcs_out[];
 
 uniform mat4 mvp;
-uniform vec3 cameraPos;
+//uniform vec3 cameraPos;
 
 void main(void)
 {
@@ -58,7 +58,7 @@ void main(void)
 			//float L = length(cameraPos - averPos);
 			//float clmDist = clamp(L, 0, 255);
 			//float LOD = 8 - clmDist / 32;
-			float LOD = 3;
+			float LOD = 4;
 
             gl_TessLevelOuter[0] = LOD;
             gl_TessLevelOuter[1] = LOD;
@@ -80,5 +80,5 @@ void main(void)
 
     gl_out[gl_InvocationID].gl_Position = gl_in[gl_InvocationID].gl_Position;
     tcs_out[gl_InvocationID].tc = tcs_in[gl_InvocationID].tc;
-	tcs_out[gl_InvocationID].id = tcs_in[gl_InvocationID].id;
+	//tcs_out[gl_InvocationID].id = tcs_in[gl_InvocationID].id;
 }

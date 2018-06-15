@@ -22,7 +22,6 @@
 
 #include "GerstnelParamManager.h"
 
-#include "TextureManager.h"
 #include "Renderer.h"
 
 struct waterParams
@@ -48,7 +47,7 @@ private:
 	std::function<double()> r;
 };
 
-class OpenGLCanvas : public QOpenGLWidget, protected QOpenGLFunctions_4_5_Core
+class OpenGLCanvas : public QOpenGLWidget//, protected QOpenGLFunctions_4_5_Core
 {
 public:
 	OpenGLCanvas(QWidget *parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
@@ -69,19 +68,11 @@ protected:
 
 	void CreateWaveEditingWidget();
 
-	void read_shader_src(const char *fname, std::vector<char> &buffer);
-	GLuint load_and_compile_shader(const char *fname, GLenum shaderType);
-	GLuint create_program(const char *path_vert_shader, const char *path_frag_shader,
-		const char *path_tesc_shader, const char *path_tese_shader);
-
 	// Init
-	void InitShaders();
 	void InitGeometry();
 	void InitBuffers();
-	void InitCamera(); 
 	void InitQtConnections();
 	void InitTextures();
-	void InitLighting();
 	void InitWaterParams();
 
 	void UpdateParamsWidgetsValues();
@@ -90,12 +81,12 @@ protected:
 	void SaveCameraParams();
 
 	// Rendering
-	void DrawAxis(glm::mat4x4 &mvp);
-	void DrawWater(glm::mat4x4 &mvp);
-	void DrawFlowWater(glm::mat4x4 &mvp);
-	void DrawSkybox(glm::mat4x4 &mvp);
-	void DrawLightCube(glm::mat4x4 &mvp);
-	void DrawFinalPass();
+	//void DrawAxis(glm::mat4x4 &mvp);
+	//void DrawWater(glm::mat4x4 &mvp);
+	//void DrawFlowWater(glm::mat4x4 &mvp);
+	//void DrawSkybox(glm::mat4x4 &mvp);
+	//void DrawLightCube(glm::mat4x4 &mvp);
+	//void DrawFinalPass();
 	//void DrawScenePortalRectangle();
 
 	float GetNextRand();
@@ -122,17 +113,12 @@ private:
 	bool m_mousePressed = false;
 	bool m_isWireframeMode = false;
 
-	// Camera stuff
-	Camera camera;
-
 	// transforms
 	glm::mat4 m_mvp;
 	glm::vec3 m_lightPosition;
 	glm::vec3 m_lightColor;
 
 	// vbo data
-	std::vector<GLfloat> m_coordinateAxisColors;
-	std::vector<GLfloat> m_axisCoords;
 	std::vector<GLfloat> m_patch_vert;
 	std::vector<GLfloat> m_skyboxVertices;
 	std::vector<GLfloat> m_lightCubeVertices;
@@ -173,6 +159,10 @@ private:
 
 	int targetCnt = 0;
 
-	TextureManager* m_pTextureManager;
 	Renderer* m_renderer;
+
+	QOpenGLContext* m_pGLContext = nullptr;
+	QOpenGLFunctions_4_5_Core* f = nullptr;
+
+	int m_cameraMoveFlags = 0;
 };

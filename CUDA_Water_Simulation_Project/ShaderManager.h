@@ -1,6 +1,6 @@
 #pragma once
 #include <QOpenGLFunctions_4_5_Core>
-#include <QOpenGLShaderProgram>
+#include <QOpenGLContext>
 
 #include <vector>
 #include <unordered_map>
@@ -15,7 +15,7 @@ enum
 	SHADER_FLAG_ALL = SHADER_FLAG_VERTEX | SHADER_FLAG_FRAGMENT | SHADER_FLAG_TESS_CONTROL | SHADER_FLAG_TESS_EVAL
 };
 
-class ShaderManager : protected QOpenGLFunctions_4_5_Core
+class ShaderManager
 {
 public:
 	static ShaderManager* GetInstance();
@@ -30,13 +30,23 @@ public:
 	GLuint create_program(const char *path_vert_shader, const char *path_frag_shader,
 		const char *path_tesc_shader, const char *path_tese_shader);
 
+	void SetGLContext(QOpenGLContext* context)
+	{
+		m_pGlContext = context;
+		if(context)
+		{
+			m_f = context->versionFunctions<QOpenGLFunctions_4_5_Core>();
+		}
+	}
+
 protected:
 	ShaderManager();
 	~ShaderManager();
 
 private:
 	static ShaderManager* m_pInstance;
-
+	QOpenGLContext *m_pGlContext = nullptr;
+	QOpenGLFunctions_4_5_Core* m_f = nullptr;
 	std::unordered_map<std::string, GLuint> m_shadersMap;
 };
 

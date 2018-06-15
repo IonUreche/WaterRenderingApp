@@ -61,7 +61,7 @@ void Camera::Update() {
 		//damping for smooth camera
 		camera_heading *= .5;
 		camera_pitch *= .5;
-		camera_position_delta = camera_position_delta * .8f;
+		camera_position_delta = glm::vec3(0, 0, 0);//camera_position_delta * .8f;
 	}
 	//compute the MVP
 	view = glm::lookAt(camera_position, camera_look_at, camera_up);

@@ -6,7 +6,6 @@
 
 ShaderManager::ShaderManager()
 {
-	initializeOpenGLFunctions();
 }
 /////////////////////////////////////////////////////////////////////////////////////
 ShaderManager::~ShaderManager()
@@ -32,8 +31,15 @@ void ShaderManager::InitShaders()
 	//	"src/Shaders/WaterFlow/waterflow.tesc", "src/Shaders/WaterFlow/waterflow.tese");
 	//m_skyboxShader = create_program("src/Shaders/skybox.vert", "src/Shaders/skybox.frag", "", "");
 	//m_filterShader = create_program("src/Shaders/customEffect.vert", "src/Shaders/customEffect.frag", "", "");
-	LoadShader("src/Shaders/WaterFlow/waterflow", SHADER_FLAG_ALL);
+	LoadShader("src/Shaders/basic3D", SHADER_FLAG_VERT_FRAG);
+	//LoadShader("src/Shaders/WaterFlow/waterflow", SHADER_FLAG_ALL);
+	LoadShader("src/Shaders/skybox", SHADER_FLAG_VERT_FRAG);
 	LoadShader("src/Shaders/terrain", SHADER_FLAG_ALL);
+	LoadShader("src/Shaders/mesh", SHADER_FLAG_ALL);
+	LoadShader("src/Shaders/water", SHADER_FLAG_ALL);
+	LoadShader("src/Shaders/customEffect", SHADER_FLAG_VERT_FRAG);
+	LoadShader("src/Shaders/textureDisplay1D", SHADER_FLAG_VERT_FRAG);
+	LoadShader("src/Shaders/textureDisplay2D", SHADER_FLAG_VERT_FRAG);
 }
 GLuint ShaderManager::GetShaderProgram(std::string path)
 {
@@ -90,16 +96,16 @@ GLuint ShaderManager::load_and_compile_shader(const char *fname, GLenum shaderTy
 	const char *src = &buffer[0];
 
 	// Compile the shader
-	GLuint shader = glCreateShader(shaderType);
-	glShaderSource(shader, 1, &src, NULL);
-	glCompileShader(shader);
+	GLuint shader = m_f->glCreateShader(shaderType);
+	m_f->glShaderSource(shader, 1, &src, NULL);
+	m_f->glCompileShader(shader);
 	// Check the result of the compilation
 	GLint test;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &test);
+	m_f->glGetShaderiv(shader, GL_COMPILE_STATUS, &test);
 	if (!test) {
 		std::cerr << "Shader compilation failed with this message:" << std::endl;
 		std::vector<char> compilation_log(512);
-		glGetShaderInfoLog(shader, compilation_log.size(), NULL, &compilation_log[0]);
+		m_f->glGetShaderInfoLog(shader, compilation_log.size(), NULL, &compilation_log[0]);
 		std::cerr << &compilation_log[0] << std::endl;
 		char c;
 		std::cin >> c;
@@ -112,14 +118,14 @@ GLuint ShaderManager::load_and_compile_shader(const char *fname, GLenum shaderTy
 GLuint ShaderManager::create_program(const char *path_vert_shader, const char *path_frag_shader,
 	const char *path_tesc_shader, const char *path_tese_shader) {
 
-	GLuint shaderProgram = glCreateProgram();
+	GLuint shaderProgram = m_f->glCreateProgram();
 
 	// Load and compile the vertex and fragment shaders
 	if (strcmp(path_vert_shader, "") != 0)
 	{
 		GLuint vertexShader = load_and_compile_shader(path_vert_shader, GL_VERTEX_SHADER);
-		glAttachShader(shaderProgram, vertexShader);
-		glDeleteShader(vertexShader);
+		m_f->glAttachShader(shaderProgram, vertexShader);
+		//glDeleteShader(vertexShader);
 	}
 	else
 	{
@@ -129,8 +135,8 @@ GLuint ShaderManager::create_program(const char *path_vert_shader, const char *p
 	if (strcmp(path_frag_shader, "") != 0)
 	{
 		GLuint fragmentShader = load_and_compile_shader(path_frag_shader, GL_FRAGMENT_SHADER);
-		glAttachShader(shaderProgram, fragmentShader);
-		glDeleteShader(fragmentShader);
+		m_f->glAttachShader(shaderProgram, fragmentShader);
+		m_f->glDeleteShader(fragmentShader);
 	}
 	else
 	{
@@ -140,20 +146,23 @@ GLuint ShaderManager::create_program(const char *path_vert_shader, const char *p
 	if (strcmp(path_tesc_shader, "") != 0)
 	{
 		GLuint tessControlShader = load_and_compile_shader(path_tesc_shader, GL_TESS_CONTROL_SHADER);
-		glAttachShader(shaderProgram, tessControlShader);
-		glDeleteShader(tessControlShader);
+		m_f->glAttachShader(shaderProgram, tessControlShader);
+		m_f->glDeleteShader(tessControlShader);
 	}
 
 	if (strcmp(path_tese_shader, "") != 0)
 	{
 		GLuint tessEvalShader = load_and_compile_shader(path_tese_shader, GL_TESS_EVALUATION_SHADER);
-		glAttachShader(shaderProgram, tessEvalShader);
-		glDeleteShader(tessEvalShader);
+		m_f->glAttachShader(shaderProgram, tessEvalShader);
+		m_f->glDeleteShader(tessEvalShader);
 	}
 
 	// Link and use the program
-	glLinkProgram(shaderProgram);
-	glUseProgram(shaderProgram);
+	m_f->glLinkProgram(shaderProgram);
+	GLenum glGetError1 = m_f->glGetError();
+	
+	m_f->glUseProgram(shaderProgram);
+	glGetError1 = m_f->glGetError();
 
 	return shaderProgram;
 }

@@ -4,13 +4,14 @@ layout(location = 0) in vec2 pos;
 layout(location = 1) in vec2 UV;
 
 out vec2 uv;
-//out vec2 poss;
-//uniform mat4 orto_matrix;
-uniform float time;
+
+uniform int flipV;
 
 void main(){
 	uv = UV;
-	//uv = vec2(abs(sin(time)), abs(cos(time)));
-	//poss = /*orto_matrix * */pos;
+	if(flipV == 1)
+	{
+		uv.y = 1 - uv.y;
+	}
 	gl_Position = vec4(pos, 0.0, 1.0);
 }

@@ -3,14 +3,14 @@
 
 layout (quads) in;
 
-layout (binding = 1) uniform sampler2D rock;
-layout (binding = 5) uniform sampler2D hhh;
+//layout (binding = 1) uniform sampler2D rock;
+//layout (binding = 5) uniform sampler2D hhh;
 
 uniform mat4 mvp;
+uniform mat4 view;
 //uniform vec3 lightPos;
 //uniform mat4 modelView_matrix;
 //uniform float time;
-uniform vec3 cameraPos;
 
 uniform int gridSize;
 uniform int patchSize;
@@ -18,23 +18,25 @@ uniform int patchSize;
 in TCS_OUT
 {
     vec2 tc;
-	float id;
 } tes_in[];
 
 out TES_OUT
 {
+	vec3 w_p;
     vec2 tc;
-	float id;
-	vec3 norm;
-	vec2 uv;
-	vec2 w_uv;
-	vec4 color;
+	vec2 ndc;
+	//vec3 viewVector;
+	//vec3 fromLightVector;
 } tes_out;
 //out vec3 lightv;
 //out vec3 viewv;
 
-// vec4(0, -1, 0, 0); for subwater
+//out vec3 viewVector2;
+
 uniform vec4 plane;
+
+uniform vec3 cameraPos;
+uniform vec3 lightPos;
 
 void main(void)
 {
@@ -49,36 +51,36 @@ void main(void)
                   gl_in[3].gl_Position,
                   gl_TessCoord.x);
     vec4 p = mix(p2, p1, gl_TessCoord.y);
+	//p = vec4(cameraPos - p.xyz, 0.0f);
+	vec4 pss = mvp * p;
+    gl_Position = pss;
 
-	int id = int(round(tes_in[0].id));
-	//int x = id & (gridSize - 1);
-    //int y = id / gridSize;
+	tes_out.ndc = vec2(pss.xy / pss.w);
+    tes_out.tc = tc;
+
 	float patchSizeF = float(patchSize);
 	float gridSizeF = float(patchSize);
-	float u = clamp((p.x / (gridSize * patchSize)), 0.0, 0.9999);
-	float v = clamp((p.z / (gridSize * patchSize)), 0.0, 0.9999);
+	float u = (p.x / (gridSize * patchSize));
+	float v = (p.z / (gridSize * patchSize));
 
-	tes_out.w_uv = vec2(u,v);
+	//tes_out.w_uv = vec2(u,v);
 
 	float u0 = mod(p.x, patchSizeF) / patchSizeF;
 	float v0 = mod(p.y, patchSizeF) / patchSizeF;
 
-	vec3 heightSample = texture2D(hhh, vec2(u,v)).xyz;
-	p.y = 10 + (-heightSample.r * 40.0f);
+	//gl_ClipDistance[0] = dot(p, plane);
 
-    gl_Position = mvp * p;
-	gl_ClipDistance[0] = dot(p, plane);
+	//vec3 viewPos = cameraPos - p.xyz;
+	//tes_out.viewVector = viewPos.xyz;
+	tes_out.w_p = p.xyz;
 
-    tes_out.tc = tc;
-	tes_out.id = tes_in[0].id;
-	tes_out.uv = vec2(u, v);
-	vec3 ffg = texture2D(rock, vec2(u,v)).rgb;
-	tes_out.color = vec4(ffg, 1.0f);
+	vec3 pdrw = p.xyz;
+	
+	//viewVector2 = normalize(cameraPos - p.xyz);
+	//tes_out.fromLightVector = normalize(lightPos - p.xyz);
 
-	vec3 texNorm = vec3(0.0f, 1.0f, 0.0f);
-	tes_out.norm = texNorm;
-
-	//vec3 viewdir = cameraPos - gl_Position.xyz;
-	//viewdir = normalize(viewdir);
-	//tes_out.viewv = viewdir;
+	//tes_out.worldPos = p.xyz;
+	//vec3 viewVector = normalize(cameraPos - p.xyz);
+	//tes_out.frenel = dot(viewVector, vec3(0.0f, 1.0f, 0.0f));
+	//tes_out.fromLightVector = lightPos - p.xyz;
 }
