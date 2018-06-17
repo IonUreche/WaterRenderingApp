@@ -30,6 +30,7 @@ void Water::InitGeometry()
 	};
 
 	m_lightPosition = glm::vec3(200, 70, 200);
+	m_screenResolution = glm::vec2(1024, 768);
 }
 ////////////////////////////////////////////////////////////////////////
 void Water::InitBuffers()
@@ -201,6 +202,12 @@ void Water::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos)
 	if (lightPosLocation != -1)
 	{
 		f->glUniform3fv(lightPosLocation, 1, glm::value_ptr(m_lightPosition));
+	}
+
+	GLint screenResolutionLocation = f->glGetUniformLocation(terrainShader, "screenResolution");
+	if (screenResolutionLocation != -1)
+	{
+		f->glUniform2fv(screenResolutionLocation, 1, glm::value_ptr(m_screenResolution));
 	}
 	
 	//

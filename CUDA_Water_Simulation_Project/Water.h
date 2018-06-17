@@ -21,8 +21,7 @@ private:
 	std::vector<GLfloat> m_patch_vert;
 	glm::vec4 m_plane;
 	glm::vec3 m_lightPosition;
-
-
+	glm::vec2 m_screenResolution;
 
 	float m_time = 0;
 

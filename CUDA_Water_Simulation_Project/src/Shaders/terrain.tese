@@ -64,7 +64,7 @@ void main(void)
 	float v0 = mod(p.y, patchSizeF) / patchSizeF;
 
 	vec3 heightSample = texture2D(hhh, vec2(u,v)).xyz;
-	p.y = 10 + (-heightSample.r * 40.0f);
+	p.y = 9 + (-heightSample.r * 40.0f);
 
     gl_Position = mvp * p;
 	gl_ClipDistance[0] = dot(p, plane);

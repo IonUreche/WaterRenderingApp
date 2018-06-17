@@ -6,59 +6,43 @@ layout (binding = 3) uniform sampler2D dudvMap;
 layout (binding = 4) uniform sampler2D normalMap;
 layout (binding = 5) uniform sampler2D depthMap;
 
-const float distortStrength = 0.02f;
-
 in TES_OUT
 {
-	vec3 w_p;
-    vec2 tc;
-	vec2 ndc;
-	//vec3 viewVector;
-	//vec3 fromLightVector;
-	//vec3 worldPos;
+	vec3 worldPosition;
+    vec2 texCoords;
 } fs_in;
-
-//in vec3 viewVector2;
 
 layout (location = 0) out vec4 out_color;
 
+//uniform int debug_mode_enabled = 0;
+
+const float distortStrength = 0.02f;
 uniform float moveFactor;
+
 uniform vec3 cameraPos;
 uniform vec3 lightPos;
 
 const float shineDamper = 20.0;
 const float reflectivity = 0.4;
 
-//uniform int gridSize;
-//uniform int debug_mode_enabled = 0;
-//in vec3 lightv;
-//in vec3 viewv;
-
-// 2D Random
-float random (in vec2 st) {
-    return fract(sin(dot(st.xy,
-                         vec2(12.9898,78.233)))
-                 * 43758.5453123);
-}
+uniform vec2 screenResolution;
 
 float LinearizeDepth(float zoverw){
-		//float n = 1; // camera z near
-		//float f = 10000.0; // camera z far
-		//return (2.0 * n) / (f + n - zoverw * (f - n));
 		float n = 0.1; // camera z near
 		float f = 1000.0; // camera z far
-		//return (2.0 * n) / (f + n - zoverw * (f - n));
 		return 2.0 * n * f / (f + n - (2.0 * zoverw - 1.0) * (f - n));
 	}
 
+//return (2.0 * n) / (f + n - zoverw * (f - n));
+
 void main(void)
 {
-	vec2 distortedTexCoords = texture(dudvMap, vec2(fs_in.tc.x + moveFactor, fs_in.tc.y)).rg*0.1;
-	distortedTexCoords = fs_in.tc + vec2(distortedTexCoords.x, distortedTexCoords.y+moveFactor);
+	vec2 distortedTexCoords = texture(dudvMap, vec2(fs_in.texCoords.x + moveFactor, fs_in.texCoords.y)).rg*0.1;
+	distortedTexCoords = fs_in.texCoords + vec2(distortedTexCoords.x, distortedTexCoords.y+moveFactor);
 	vec2 totalDistortion = (texture(dudvMap, distortedTexCoords).rg * 2.0 - 1.0) * distortStrength;
 
-	vec2 v2 = vec2((gl_FragCoord.x / 1024), (gl_FragCoord.y / 768));
-	vec2 refleTexCoord = vec2(v2.x, v2.y) + totalDistortion;
+	vec2 v2 = vec2((gl_FragCoord.x / screenResolution.x), (gl_FragCoord.y / screenResolution.y));
+	vec2 refleTexCoord = v2 + totalDistortion;
 	vec2 refraTexCoord = v2 + totalDistortion;
 
 	refleTexCoord = clamp(refleTexCoord, 0.001, 0.999);
@@ -71,8 +55,9 @@ void main(void)
 	vec3 normal = vec3(normCol.r * 2 - 1, normCol.b * 3, normCol.g * 2 - 1);
 	normal = normalize(normal);
 
-	vec3 fromLightVector = normalize(lightPos - fs_in.w_p);
-	vec3 viewVector = normalize(cameraPos - fs_in.w_p);
+	vec3 fromLightVector = normalize(lightPos - fs_in.worldPosition);
+	vec3 viewVector = normalize(cameraPos - fs_in.worldPosition);
+
 	float fresnel = clamp(dot(viewVector, normal), 0, 1);
 	fresnel = pow(fresnel, 1.5);
 
@@ -89,16 +74,13 @@ void main(void)
 	vec3 specularHighlights = lightColour * specular * reflectivity * clamp(diffDepth / 0.5, 0, 1);
 	
 	out_color = mix(refleColor, refraColor, fresnel);
-	out_color = mix(out_color, vec4(0.0, 0.3, 0.5, 1.0), 0.2f) + vec4(specularHighlights, 0.0);
+	out_color = mix(out_color, vec4(0.0, 0.3, 0.5, 1.0), 0.2f);
+	out_color = out_color + vec4(specularHighlights, 0.0);
+	out_color.a = clamp(diffDepth / 0.5, 0, 1);
 
 	//out_color = vec4(diffDepth / 5.0, diffDepth / 5.0, diffDepth / 5.0, 1.0);
-	out_color.a = clamp(diffDepth / 0.5, 0, 1);
+	//out_color = vec4(0.0, 0.3, 0.5, 1.0);
 }
-
-
-
-
-
 
 //if(debug_mode_enabled != 0) // visualize the normals by color
 	//{

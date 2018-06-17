@@ -201,7 +201,7 @@ void Renderer::InitObjects()
 	m_screenQuad3 = new ScreenQuad(m_pGLContext);
 	m_screenQuad3->SetRenderTarget(m_defaultFramebuffer);
 	m_screenQuad3->SetType(2);
-	m_screenQuad3->SetFlipV(0);
+	m_screenQuad3->SetFlipV(1);
 	m_screenQuad3->SetColorAttachment(m_colorTex[1][0]);
 	m_screenQuad3->InitBuffers();
 
@@ -307,16 +307,18 @@ void Renderer::DrawAll(GLuint defFrameBuffer)
 	cmv1[1][2] *= -1;
 	auto mvp1 = m_camera->projection * cmv1;
 
+	cmps.y = -cmps.y;
+
 	m_skybox->Draw(mvp1, m_camera->camera_position);
-	m_terrain->Draw(mvp1, m_camera->camera_position);
-	m_gizmo->Draw(mvp1, m_camera->camera_position);
+	m_terrain->Draw(mvp1, cmps);
+	//m_gizmo->Draw(mvp1, m_camera->camera_position);
 	//m_water->Draw(m_mvp, m_camera->camera_position);
 
 	for (int i = 0; i < m_cubes.size(); ++i)
 	{
 		if (m_cubes[i]->GetPosition().y >= 0)
 		{
-			m_cubes[i]->Draw(mvp1, m_camera->camera_position);
+			m_cubes[i]->Draw(mvp1, cmps);
 		}
 	}
 
@@ -331,7 +333,7 @@ void Renderer::DrawAll(GLuint defFrameBuffer)
 	m_skybox->Draw(m_mvp, m_camera->camera_position);
 	m_terrain->Draw(m_mvp, m_camera->camera_position);
 
-	m_gizmo->Draw(m_mvp, m_camera->camera_position);
+	//m_gizmo->Draw(m_mvp, m_camera->camera_position);
 	for (int i = 0; i < m_cubes.size(); ++i)
 	{
 		m_cubes[i]->Draw(m_mvp, m_camera->camera_position);
@@ -364,21 +366,23 @@ void Renderer::DrawAll(GLuint defFrameBuffer)
 	//f->glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
 	//f->glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	std::vector<GLfloat> screenVert = { -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
-	
 	m_screenQuad->SetFBOVertices(screenVert);
 	m_screenQuad->Draw(m_mvp, m_camera->camera_position);
 
 	std::vector<GLfloat> leftGUIVert = { -0.9f, 0.9f, -0.5f, 0.9f, -0.9f, 0.5f, -0.5f, 0.5f };
+	//std::vector<GLfloat> leftGUIVert = { -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
 	m_screenQuad2->SetFBOVertices(leftGUIVert);
-	m_screenQuad2->Draw(m_mvp, m_camera->camera_position);
+	//m_screenQuad2->Draw(m_mvp, m_camera->camera_position);
 
-	std::vector<GLfloat> rightGUIVert = { 0.5f, 0.9f, 0.9f, 0.9f, 0.5f, 0.5f, 0.9f, 0.5f };
+	//std::vector<GLfloat> rightGUIVert = { 0.5f, 0.9f, 0.9f, 0.9f, 0.5f, 0.5f, 0.9f, 0.5f };
+	std::vector<GLfloat> rightGUIVert = { -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
 	m_screenQuad3->SetFBOVertices(rightGUIVert);
-	m_screenQuad3->Draw(m_mvp, m_camera->camera_position);
+	//m_screenQuad3->Draw(m_mvp, m_camera->camera_position);
 
 	std::vector<GLfloat> rightBotGUIVert = { 0.5f, -0.5f, 0.9f, -0.5f, 0.5f, -0.9f, 0.9f, -0.9f };
+	//std::vector<GLfloat> rightBotGUIVert = { -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
 	m_screenQuad4->SetFBOVertices(rightBotGUIVert);
-	m_screenQuad4->Draw(m_mvp, m_camera->camera_position);
+	//m_screenQuad4->Draw(m_mvp, m_camera->camera_position);
 }
 //////////////////////////////////////////////////////////////////////////
 void Renderer::DrawFinalPass()
