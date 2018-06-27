@@ -69,7 +69,7 @@ void Skybox::InitGeometry()
 		m_vertices[i] = skyboxVertices[i] * m_size;
 }
 //////////////////////////////////////////////////////////////////////////
-void Skybox::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos)
+void Skybox::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode)
 {
 	f->glDepthMask(GL_FALSE);
 	auto skyboxShader = ShaderManager::GetInstance()->GetShaderProgram("skybox");

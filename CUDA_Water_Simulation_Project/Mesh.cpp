@@ -29,7 +29,7 @@ void Mesh::InitBuffers()
 	f->glGenBuffers(1, &m_vbo);
 }
 ////////////////////////////////////////////////////////////////////////
-void Mesh::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos)
+void Mesh::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode)
 {
 	GLuint meshShader = ShaderManager::GetInstance()->GetShaderProgram("mesh");
 

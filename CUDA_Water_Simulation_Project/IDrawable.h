@@ -11,7 +11,7 @@ class IDrawable
 public:
 	virtual void InitBuffers() = 0;
 	virtual void InitGeometry() = 0;
-	virtual void Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos) = 0;
+	virtual void Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode = false) = 0;
 	QOpenGLContext* m_pGLContext = nullptr;
 	QOpenGLFunctions_4_5_Core* f = nullptr;
 	GLuint m_fbo;

@@ -21,6 +21,11 @@ void TextureManager::Init()
 	LoadTextureImage("src/Resources/Terrain/test.png", GL_RGB);
 	LoadTextureImage("src/Resources/Terrain/test2.png", GL_RGB);
 
+	LoadTextureImage("src/Resources/Noise/Noise512_0.jpg", GL_RGB);
+	LoadTextureImage("src/Resources/Noise/Noise512_1.jpg", GL_RGB);
+	LoadTextureImage("src/Resources/Noise/Noise512_2.jpg", GL_RGB);
+	LoadTextureImage("src/Resources/Noise/Noise512_3.jpg", GL_RGB);
+
 	std::vector<std::string> faces = {
 		"src/Resources/Skyboxes/12/test/sky12_RT.jpg",
 		"src/Resources/Skyboxes/12/test/sky12_LF.jpg",

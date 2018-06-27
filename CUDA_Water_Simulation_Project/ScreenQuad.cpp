@@ -19,7 +19,7 @@ void ScreenQuad::InitBuffers()
 	f->glGenBuffers(1, &vbo_fbo_tex_vertices);
 }
 ///////////////////////////////////////////////////////////////
-void ScreenQuad::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos)
+void ScreenQuad::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode)
 {
 	//f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_renderTarget);
 	std::string shaderName = "customEffect";
@@ -82,9 +82,8 @@ void ScreenQuad::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos)
 	GLint sceneTextureLocation = f->glGetUniformLocation(basicShader, "renderedTexture");
 	if (sceneTextureLocation != -1)
 	{
-		GLuint grassTexture = TextureManager::GetInstance()->GetTexture("grass");
 		f->glActiveTexture(GL_TEXTURE0);
-		f->glBindTexture(GL_TEXTURE_2D, /*grassTexture*/m_colorAttachment0);
+		f->glBindTexture(GL_TEXTURE_2D, m_colorAttachment0);
 		f->glUniform1i(sceneTextureLocation, 0);
 	}
 

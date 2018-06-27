@@ -72,7 +72,6 @@ protected:
 	void InitGeometry();
 	void InitBuffers();
 	void InitQtConnections();
-	void InitTextures();
 	void InitWaterParams();
 
 	void UpdateParamsWidgetsValues();
@@ -145,6 +144,7 @@ private:
 
 	waterParams m_waterParams;
 	std::vector<float> m_wavesGeometricData;
+	std::vector<float> m_wavesNormalMapData;
 	std::vector<QDoubleSpinBox*> m_wavesGeometricDataWidgets;
 
 	Rand_double rd{0.0, 1.0};
@@ -163,6 +163,9 @@ private:
 
 	QOpenGLContext* m_pGLContext = nullptr;
 	QOpenGLFunctions_4_5_Core* f = nullptr;
+
+	QWidget* m_wid = nullptr;
+	
 
 	int m_cameraMoveFlags = 0;
 };

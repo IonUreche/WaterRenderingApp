@@ -36,7 +36,7 @@ void Terrain::InitBuffers()
 	f->glGenBuffers(1, &m_vbo);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-void Terrain::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos)
+void Terrain::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode)
 {
 	//f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
 

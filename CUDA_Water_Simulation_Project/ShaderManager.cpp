@@ -32,14 +32,20 @@ void ShaderManager::InitShaders()
 	//m_skyboxShader = create_program("src/Shaders/skybox.vert", "src/Shaders/skybox.frag", "", "");
 	//m_filterShader = create_program("src/Shaders/customEffect.vert", "src/Shaders/customEffect.frag", "", "");
 	LoadShader("src/Shaders/basic3D", SHADER_FLAG_VERT_FRAG);
-	//LoadShader("src/Shaders/WaterFlow/waterflow", SHADER_FLAG_ALL);
+	LoadShader("src/Shaders/WaterFlow/waterflow", SHADER_FLAG_ALL);
 	LoadShader("src/Shaders/skybox", SHADER_FLAG_VERT_FRAG);
 	LoadShader("src/Shaders/terrain", SHADER_FLAG_ALL);
 	LoadShader("src/Shaders/mesh", SHADER_FLAG_ALL);
 	LoadShader("src/Shaders/water", SHADER_FLAG_ALL);
+	LoadShader("src/Shaders/WaterIFFT/waterifft", SHADER_FLAG_ALL);
 	LoadShader("src/Shaders/customEffect", SHADER_FLAG_VERT_FRAG);
 	LoadShader("src/Shaders/textureDisplay1D", SHADER_FLAG_VERT_FRAG);
 	LoadShader("src/Shaders/textureDisplay2D", SHADER_FLAG_VERT_FRAG);
+	LoadShader("src/Shaders/FFT/hkt", SHADER_FLAG_COMPUTE);
+	LoadShader("src/Shaders/FFT/h0k", SHADER_FLAG_COMPUTE);
+	LoadShader("src/Shaders/FFT/butterfly", SHADER_FLAG_COMPUTE);
+	LoadShader("src/Shaders/FFT/inversion", SHADER_FLAG_COMPUTE);
+	LoadShader("src/Shaders/FFT/twiddleFactors", SHADER_FLAG_COMPUTE);
 }
 GLuint ShaderManager::GetShaderProgram(std::string path)
 {
@@ -60,8 +66,9 @@ void ShaderManager::LoadShader(std::string path, uint32_t flags)
 	std::string fragShaderStr = (flags & SHADER_FLAG_FRAGMENT) ? pathWithoutName + "/" + ShaderName + ".frag" : "";
 	std::string tessControlShaderStr = (flags & SHADER_FLAG_TESS_CONTROL) ? pathWithoutName + "/" + ShaderName + ".tesc" : "";
 	std::string tessEvalShaderStr = (flags & SHADER_FLAG_TESS_EVAL) ? pathWithoutName + "/" + ShaderName + ".tese" : "";
+	std::string computeShaderStr = (flags & SHADER_FLAG_COMPUTE) ? pathWithoutName + "/" + ShaderName + ".comp" : "";
 
-	GLuint shader = create_program(vertShaderStr.c_str(), fragShaderStr.c_str(), tessControlShaderStr.c_str(), tessEvalShaderStr.c_str());
+	GLuint shader = create_program(vertShaderStr.c_str(), fragShaderStr.c_str(), tessControlShaderStr.c_str(), tessEvalShaderStr.c_str(), computeShaderStr.c_str());
 
 	m_shadersMap[ShaderName] = shader;
 }
@@ -116,7 +123,7 @@ GLuint ShaderManager::load_and_compile_shader(const char *fname, GLenum shaderTy
 }
 /////////////////////////////////////////////////////////////////////////////////////
 GLuint ShaderManager::create_program(const char *path_vert_shader, const char *path_frag_shader,
-	const char *path_tesc_shader, const char *path_tese_shader) {
+	const char *path_tesc_shader, const char *path_tese_shader, const char *path_compute_shader) {
 
 	GLuint shaderProgram = m_f->glCreateProgram();
 
@@ -125,11 +132,7 @@ GLuint ShaderManager::create_program(const char *path_vert_shader, const char *p
 	{
 		GLuint vertexShader = load_and_compile_shader(path_vert_shader, GL_VERTEX_SHADER);
 		m_f->glAttachShader(shaderProgram, vertexShader);
-		//glDeleteShader(vertexShader);
-	}
-	else
-	{
-		assert(false);
+		m_f->glDeleteShader(vertexShader);
 	}
 
 	if (strcmp(path_frag_shader, "") != 0)
@@ -137,10 +140,6 @@ GLuint ShaderManager::create_program(const char *path_vert_shader, const char *p
 		GLuint fragmentShader = load_and_compile_shader(path_frag_shader, GL_FRAGMENT_SHADER);
 		m_f->glAttachShader(shaderProgram, fragmentShader);
 		m_f->glDeleteShader(fragmentShader);
-	}
-	else
-	{
-		assert(false);
 	}
 
 	if (strcmp(path_tesc_shader, "") != 0)
@@ -155,6 +154,13 @@ GLuint ShaderManager::create_program(const char *path_vert_shader, const char *p
 		GLuint tessEvalShader = load_and_compile_shader(path_tese_shader, GL_TESS_EVALUATION_SHADER);
 		m_f->glAttachShader(shaderProgram, tessEvalShader);
 		m_f->glDeleteShader(tessEvalShader);
+	}
+
+	if (strcmp(path_compute_shader, "") != 0)
+	{
+		GLuint computeShader = load_and_compile_shader(path_compute_shader, GL_COMPUTE_SHADER);
+		m_f->glAttachShader(shaderProgram, computeShader);
+		m_f->glDeleteShader(computeShader);
 	}
 
 	// Link and use the program

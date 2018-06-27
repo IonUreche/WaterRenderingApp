@@ -9,7 +9,7 @@ public:
 
 	void InitBuffers() override;
 	void InitGeometry() override;
-	void Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos) override;
+	void Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode = false) override;
 	void SetSize(float size){ m_size = size; }
 
 protected:

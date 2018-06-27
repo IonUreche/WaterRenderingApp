@@ -15,7 +15,7 @@ out TCS_OUT
 } tcs_out[];
 
 uniform mat4 mvp;
-//uniform vec3 cameraPos;
+uniform vec3 cameraPos;
 
 void main(void)
 {
@@ -57,7 +57,7 @@ void main(void)
 			//				gl_in[2].gl_Position.xyz + gl_in[3].gl_Position.xyz) / 4;
 			//float L = length(cameraPos - averPos);
 			//float clmDist = clamp(L, 0, 255);
-			//float LOD = 8 - clmDist / 32;
+			//float LOD = 32 - clmDist / 16;
 			float LOD = 4;
 
             gl_TessLevelOuter[0] = LOD;

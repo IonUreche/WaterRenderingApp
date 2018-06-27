@@ -19,7 +19,7 @@ void Cube::InitBuffers()
 	f->glGenBuffers(1, &m_colorsBufferId);
 }
 ///////////////////////////////////////////////////////////////
-void Cube::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos)
+void Cube::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode)
 {
 	GLuint m_cubeShader = ShaderManager::GetInstance()->GetShaderProgram("basic3D");
 

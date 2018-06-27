@@ -19,7 +19,7 @@ void WorldGizmo::InitBuffers()
 	f->glGenBuffers(1, &m_colorsBufferId);
 }
 ///////////////////////////////////////////////////////////////
-void WorldGizmo::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos)
+void WorldGizmo::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode)
 {
 	//f->glBindFramebuffer(GL_DRAW_FRAMEBUFFER, m_fbo);
 	//	// Shader

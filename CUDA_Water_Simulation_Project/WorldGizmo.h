@@ -10,7 +10,7 @@ public:
 
 	void InitGeometry() override;
 	void InitBuffers() override;
-	void Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos) override;
+	void Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode = false) override;
 
 private:
 	std::vector<GLfloat> m_coordinateAxisColors;
