@@ -25,6 +25,9 @@ public:
 
 	void paintEvent(QPaintEvent *event) override;
 
+	void SetDx(float dx){ /*normDir.setX(dx);*/ m_lastClickPos.setX((1 + dx) * width() / 2); }
+	void SetDy(float dy) { /*normDir.setY(dy);*/m_lastClickPos.setY((1 + dy) * height() / 2); }
+
 signals:
 	void onMousePressed2(float x, float y);
 

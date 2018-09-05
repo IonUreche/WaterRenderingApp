@@ -5,6 +5,7 @@ layout (quads) in;
 
 uniform mat4 mvp;
 uniform float choppy;
+uniform float tiles;
 //uniform vec3 lightPos;
 //uniform mat4 modelView_matrix;
 //uniform float time;
@@ -43,14 +44,14 @@ void main(void)
                   gl_TessCoord.x);
     vec4 p = mix(p2, p1, gl_TessCoord.y);
 
-    
-    p.y += texture(displ_y, vec2(p.x / 128.0, p.z / 128.0)).r;
+    float tiledVal = 128.0 / tiles;
+    vec2 tiled_uv = vec2(mod(p.x, tiledVal) / tiledVal, mod(p.z, tiledVal) / tiledVal);
+    p.y += texture(displ_y, tiled_uv).r;
     if(choppy > 0)
     {
-        p.x += texture(displ_x, vec2(p.x / 128.0, p.z / 128.0)).r;
-        p.z += texture(displ_z, vec2(p.x / 128.0, p.z / 128.0)).r;
+        p.x += texture(displ_x,tiled_uv).r;
+        p.z += texture(displ_z, tiled_uv).r;
     }
-    
 
     gl_Position = mvp * p;
 	

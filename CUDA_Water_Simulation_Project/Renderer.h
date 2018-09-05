@@ -18,6 +18,7 @@
 #include "Water.h"
 #include "WaterGerstner.h"
 #include "WaterIFFT.h"
+#include "Water.h"
 #include "Cube.h"
 #include "Skybox.h"
 
@@ -69,6 +70,10 @@ public:
 
 	void SetIFFT_L(int newVal){ m_waterIfft->SetL(newVal); }
 	WaterIFFT* GetWaterIFFT(){ return m_waterIfft; }
+	Water* GetSimpleWater(){ return m_water; }
+
+	int GetType() const { return m_type; }
+	void ToogleShowQuads(){ m_showQuads = !m_showQuads; }
 
 private:
 
@@ -116,7 +121,7 @@ private:
 
 	int m_type = 0;
 	bool m_debugModeStatus = false;
-
+	bool m_showQuads = true;
 
 	QTime m_qtime;
 	int m_lastTime = 0;

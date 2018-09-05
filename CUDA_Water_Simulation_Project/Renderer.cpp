@@ -355,7 +355,7 @@ void Renderer::DrawAll(GLuint defFrameBuffer)
 		{
 			m_terrain->SetPlane(glm::vec4(0, 1, 0, 11111));
 			m_water->SetPlane(glm::vec4(0, -1, 0, 11111));
-			m_terrain->Draw(m_mvp, m_camera->camera_position);
+			m_terrain->Draw(m_mvp, m_camera->camera_position, m_debugModeStatus);
 		
 			//m_gizmo->Draw(m_mvp, m_camera->camera_position);
 			for (int i = 0; i < m_cubes.size(); ++i)
@@ -368,8 +368,13 @@ void Renderer::DrawAll(GLuint defFrameBuffer)
 			m_water->SetWaterTextures(m_colorTex[0][0], m_colorTex[1][0]);
 			m_water->SetDepthTexture(m_depthTex[0]);
 			m_water->m_view = m_camera->view;
-			m_water->Draw(m_mvp, m_camera->camera_position);
+			m_water->Draw(m_mvp, m_camera->camera_position, m_debugModeStatus);
 			f->glDisable(GL_BLEND);
+
+			m_screenQuad2->SetColorAttachment(m_colorTex[0][0]);
+			m_screenQuad3->SetColorAttachment(m_colorTex[1][0]);
+			m_screenQuad4->SetColorAttachment(m_colorTex[2][0]);
+			m_screenQuad5->SetColorAttachment(m_colorTex[0][1]);
 		}
 		else
 		if (m_type == 1)
@@ -411,23 +416,35 @@ void Renderer::DrawAll(GLuint defFrameBuffer)
 	std::vector<GLfloat> leftGUIVert = { -0.9f, 0.9f, -0.5f, 0.9f, -0.9f, 0.5f, -0.5f, 0.5f };
 	//std::vector<GLfloat> leftGUIVert = { -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
 	m_screenQuad2->SetFBOVertices(leftGUIVert);
-	m_screenQuad2->Draw(m_mvp, m_camera->camera_position);
-
+	if (m_showQuads && m_type != 1)
+	{
+		m_screenQuad2->Draw(m_mvp, m_camera->camera_position);
+	}
+	
 	std::vector<GLfloat> rightGUIVert = { 0.5f, 0.9f, 0.9f, 0.9f, 0.5f, 0.5f, 0.9f, 0.5f };
 	//std::vector<GLfloat> rightGUIVert = { -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
 	//std::vector<GLfloat> rightGUIVert = { 0.6f, 0.9f, 0.9f, 0.9f, 0.6f, 0.5f, 0.9f, 0.5f };
 	m_screenQuad3->SetFBOVertices(rightGUIVert);
-	m_screenQuad3->Draw(m_mvp, m_camera->camera_position);
+	if (m_showQuads && m_type != 1)
+	{
+		m_screenQuad3->Draw(m_mvp, m_camera->camera_position);
+	}
 
 	//std::vector<GLfloat> rightBotGUIVert = { 0.5f, -0.5f, 0.9f, -0.5f, 0.5f, -0.9f, 0.9f, -0.9f };
 	//std::vector<GLfloat> rightBotGUIVert = { -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f, 1.0f, 1.0f };
 	std::vector<GLfloat> rightBotGUIVert = { 0.5f, -0.5f, 0.9f, -0.5f, 0.5f, -0.9f, 0.9f, -0.9f };
 	m_screenQuad4->SetFBOVertices(rightBotGUIVert);
-	m_screenQuad4->Draw(m_mvp, m_camera->camera_position);
+	if (m_showQuads && m_type == 2)
+	{
+		m_screenQuad4->Draw(m_mvp, m_camera->camera_position);
+	}
 
 	std::vector<GLfloat> leftBotGUIVert = { -0.9f, -0.5f, -0.5f, -0.5f, -0.9f, -0.9f, -0.5f, -0.9f };
 	m_screenQuad5->SetFBOVertices(leftBotGUIVert);
-	m_screenQuad5->Draw(m_mvp, m_camera->camera_position);
+	if (m_showQuads && m_type == 2)
+	{
+		m_screenQuad5->Draw(m_mvp, m_camera->camera_position);
+	}
 }
 //////////////////////////////////////////////////////////////////////////
 void Renderer::DrawFinalPass()

@@ -27,6 +27,7 @@ public:
 	void SetIntensity(float intensity) { m_intensity = intensity; }
 	void SetCapillarSupressFactor(float factor) { m_capillarSupressFactor = factor; }
 	void SetDirection(float dx, float dy){ m_dir[0] = dx; m_dir[1] = dy; }
+	void SetTiles(float tiles){ m_tiles = tiles; }
 
 	GLuint GetTildeh0k() const { return m_tilde_h0k; }
 	GLuint GetTildeh0minusk() const { return m_tilde_h0minusk; }
@@ -105,9 +106,10 @@ private:
 
 	int m_N = 512;
 	int m_log_2_N = 9;
-	int m_L = 1000;
-	float m_amplitude = 20.0f;
-	float m_intensity = 5.0f;
+	int m_L = 139;//1000;
+	float m_amplitude = 4267;//= 20.0f;
+	float m_intensity = 22;//5.0f;
 	float m_dir[2] = { 1.0f, 0.0f };
 	float m_capillarSupressFactor = 0.5f;
+	float m_tiles = 1;
 };

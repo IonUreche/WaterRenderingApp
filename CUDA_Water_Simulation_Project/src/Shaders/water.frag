@@ -16,14 +16,14 @@ layout (location = 0) out vec4 out_color;
 
 //uniform int debug_mode_enabled = 0;
 
-const float distortStrength = 0.02f;
+uniform float distortStrength = 0.02f;
 uniform float moveFactor;
 
 uniform vec3 cameraPos;
 uniform vec3 lightPos;
 
-const float shineDamper = 20.0;
-const float reflectivity = 0.4;
+uniform float shineDamper = 20.0;
+uniform float reflectivity = 0.2;
 
 uniform vec2 screenResolution;
 
@@ -66,7 +66,7 @@ void main(void)
 	float waterDepth = LinearizeDepth(gl_FragCoord.z);
 	float diffDepth = (floorDepth - waterDepth);
 
-	vec3 lightColour = vec3(1.0, 0.9, 0.3);
+	vec3 lightColour = vec3(1.0, 0.9, 1.0);
 	
 	vec3 reflectedLight = reflect(normalize(fromLightVector), normal);
 	float specular = max(dot(reflectedLight, viewVector), 0);

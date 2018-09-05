@@ -19,7 +19,12 @@ void DirectionVectorWidget::mousePressEvent(QMouseEvent *event)
 {
 	//QWidget::mousePressEvent(event);
 	m_lastClickPos = event->pos();
-	emit onMousePressed2(m_lastClickPos.x(), m_lastClickPos.y());
+
+	QLineF l(width() / 2, height() / 2, m_lastClickPos.x(), m_lastClickPos.y());
+	l = l.unitVector();
+	normDir = l.p2() - l.p1();
+
+	emit onMousePressed2(normDir.x(), normDir.y());
 	update();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -27,7 +32,12 @@ void DirectionVectorWidget::mouseMoveEvent(QMouseEvent *event)
 {
 	//QWidget::mouseMoveEvent(event);
 	m_lastClickPos = event->pos();
-	emit onMousePressed2(m_lastClickPos.x(), m_lastClickPos.y());
+
+	QLineF l(width() / 2, height() / 2, m_lastClickPos.x(), m_lastClickPos.y());
+	l = l.unitVector();
+	normDir = l.p2() - l.p1();
+
+	emit onMousePressed2(normDir.x(), normDir.y());
 	update();
 }
 ////////////////////////////////////////////////////////////////////////////
@@ -35,7 +45,12 @@ void DirectionVectorWidget::mouseReleaseEvent(QMouseEvent *event)
 {
 	//QWidget::mouseReleaseEvent(event);
 	m_lastClickPos = event->pos();
-	emit onMousePressed2(m_lastClickPos.x(), m_lastClickPos.y());
+
+	QLineF l(width() / 2, height() / 2, m_lastClickPos.x(), m_lastClickPos.y());
+	l = l.unitVector();
+	normDir = l.p2() - l.p1();
+
+	emit onMousePressed2(normDir.x(), normDir.y());
 	update();
 }
 ////////////////////////////////////////////////////////////////////////////

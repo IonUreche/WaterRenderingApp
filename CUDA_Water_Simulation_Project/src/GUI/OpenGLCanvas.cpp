@@ -56,10 +56,130 @@ void OpenGLCanvas::CreateWaveEditingWidget()
 
 	{
 		QWidget *wid2 = new QWidget(wid);
+		QVBoxLayout *v2lay = new QVBoxLayout();
+		v2lay->setContentsMargins(1, 1, 1, 1);
+		wid2->setLayout(v2lay);
+		m_W0 = wid2;
+		{
+			QWidget *A_wid = new QWidget(wid2);
+			QHBoxLayout *A_lay = new QHBoxLayout();
+			A_wid->setLayout(A_lay);
+
+			QLabel *A_label = new QLabel(A_wid);
+			A_label->setText("Distortion: ");
+			A_lay->addWidget(A_label);
+
+			QSlider *A_slider = new QSlider(Qt::Orientation::Horizontal, A_wid);
+			A_slider->setMinimum(0);
+			A_slider->setMaximum(1000);
+			A_lay->addWidget(A_slider);
+
+			QDoubleSpinBox *A_spin = new QDoubleSpinBox();
+			A_spin->setDecimals(4);
+			A_spin->setSingleStep(0.001);
+			A_spin->setMinimum(0);
+			A_spin->setMaximum(0.1);
+
+			A_lay->addWidget(A_spin);
+			QObject::connect(A_spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, A_slider](double newVal)
+			{
+				m_renderer->GetSimpleWater()->SetDistortionStrength(newVal);
+				A_slider->setValue(newVal * 10000);
+			});
+
+			QObject::connect(A_slider, &QSlider::valueChanged, [this, A_spin](int newVal)
+			{
+				double realvalue = newVal / 10000.0;
+				m_renderer->GetSimpleWater()->SetDistortionStrength(realvalue);
+				A_spin->setValue(realvalue);
+			});
+
+			v2lay->addWidget(A_wid);
+		}
+
+		{
+			QWidget *A_wid = new QWidget(wid2);
+			QHBoxLayout *A_lay = new QHBoxLayout();
+			A_wid->setLayout(A_lay);
+
+			QLabel *A_label = new QLabel(A_wid);
+			A_label->setText("Shine Damper: ");
+			A_lay->addWidget(A_label);
+
+			QSlider *A_slider = new QSlider(Qt::Orientation::Horizontal, A_wid);
+			A_slider->setMinimum(0);
+			A_slider->setMaximum(100000);
+			A_lay->addWidget(A_slider);
+
+			QDoubleSpinBox *A_spin = new QDoubleSpinBox();
+			A_spin->setDecimals(4);
+			A_spin->setSingleStep(0.001);
+			A_spin->setMinimum(0);
+			A_spin->setMaximum(100);
+
+			A_lay->addWidget(A_spin);
+			QObject::connect(A_spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, A_slider](double newVal)
+			{
+				m_renderer->GetSimpleWater()->SetShineDamper(newVal);
+				A_slider->setValue(newVal * 1000);
+			});
+
+			QObject::connect(A_slider, &QSlider::valueChanged, [this, A_spin](int newVal)
+			{
+				double realvalue = newVal / 1000.0;
+				m_renderer->GetSimpleWater()->SetShineDamper(realvalue);
+				A_spin->setValue(realvalue);
+			});
+
+			v2lay->addWidget(A_wid);
+		}
+
+		{
+			QWidget *A_wid = new QWidget(wid2);
+			QHBoxLayout *A_lay = new QHBoxLayout();
+			A_wid->setLayout(A_lay);
+
+			QLabel *A_label = new QLabel(A_wid);
+			A_label->setText("Reflectivity: ");
+			A_lay->addWidget(A_label);
+
+			QSlider *A_slider = new QSlider(Qt::Orientation::Horizontal, A_wid);
+			A_slider->setMinimum(0);
+			A_slider->setMaximum(10000);
+			A_lay->addWidget(A_slider);
+
+			QDoubleSpinBox *A_spin = new QDoubleSpinBox();
+			A_spin->setDecimals(4);
+			A_spin->setSingleStep(0.001);
+			A_spin->setMinimum(0);
+			A_spin->setMaximum(10.0);
+
+			A_lay->addWidget(A_spin);
+			QObject::connect(A_spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, A_slider](double newVal)
+			{
+				m_renderer->GetSimpleWater()->SetReflectivity(newVal);
+				A_slider->setValue(newVal * 1000);
+			});
+
+			QObject::connect(A_slider, &QSlider::valueChanged, [this, A_spin](int newVal)
+			{
+				double realvalue = newVal / 1000.0;
+				m_renderer->GetSimpleWater()->SetReflectivity(realvalue);
+				A_spin->setValue(realvalue);
+			});
+
+			v2lay->addWidget(A_wid);
+		}
+
+		vlay->addWidget(wid2);
+	}
+
+	{
+		QWidget *wid2 = new QWidget(wid);
 		QHBoxLayout *hlay = new QHBoxLayout();
 		hlay->setContentsMargins(1, 1, 1, 1);
 		wid2->setLayout(hlay);
-
+		m_W1 = wid2;
 		vlay->addWidget(wid2);
 
 		for (int i = 0; i < 4; ++i)
@@ -154,102 +274,122 @@ void OpenGLCanvas::CreateWaveEditingWidget()
 			});
 			vlay->addWidget(w6);
 
-// Dx
-QWidget *w7 = new QWidget();
-QHBoxLayout *h7 = new QHBoxLayout();
-h7->setContentsMargins(1, 1, 1, 1);
-w7->setLayout(h7);
-QLabel *ldx = new QLabel();
-ldx->setText("Dx: ");
-h7->addWidget(ldx);
-QDoubleSpinBox *sdx = new QDoubleSpinBox();
-sdx->setDecimals(4);
-sdx->setMinimum(-10000);
-sdx->setMaximum(10000);
-sdx->setValue(m_wavesGeometricData[6 * i + 4]);
-m_wavesGeometricDataWidgets.push_back(sdx);
-h7->addWidget(sdx);
-QObject::connect(sdx, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, i](double newVal)
-{
-	m_wavesGeometricData[6 * i + 4] = newVal;
-});
-vlay->addWidget(w7);
+			DirectionVectorWidget *D_wid = new DirectionVectorWidget();
 
-// Dy
-QWidget *w8 = new QWidget();
-QHBoxLayout *h8 = new QHBoxLayout();
-h8->setContentsMargins(1, 1, 1, 1);
-w8->setLayout(h8);
-QLabel *ldy = new QLabel();
-ldy->setText("Dy: ");
-h8->addWidget(ldy);
-QDoubleSpinBox *sdy = new QDoubleSpinBox();
-sdy->setDecimals(4);
-sdy->setMinimum(-10000);
-sdy->setMaximum(10000);
-sdy->setValue(m_wavesGeometricData[6 * i + 5]);
-m_wavesGeometricDataWidgets.push_back(sdy);
-h8->addWidget(sdy);
-QObject::connect(sdy, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, i](double newVal)
-{
-	m_wavesGeometricData[6 * i + 5] = newVal;
-});
-vlay->addWidget(w8);
-
-if (i == 0)
-{
-	m_configNameLineEdit = new QLineEdit();
-	vlay->addWidget(m_configNameLineEdit);
-}
-else if (i == 1)
-{
-	m_comboConfigNames = new QComboBox();
-	vlay->addWidget(m_comboConfigNames);
-
-	auto names = m_gerstnelParamManager.GetConfigsNames();
-	for (auto &n : names)
-	{
-		m_comboConfigNames->addItem(QString(n.c_str()));
-	}
-
-	QObject::connect(m_comboConfigNames, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index)
-	{
-		auto configFloats = m_gerstnelParamManager.GetConfigData(index);
-		for (int i = 0; i < 24; ++i)
-		{
-			//if(i % 6 != 4 && i % 6 != 5)
-			m_wavesGeometricData[i] = configFloats[i];
-		}
-		m_wavesGeometricData = configFloats;
-		UpdateParamsWidgetsValues();
-
-		m_configNameLineEdit->setText(m_comboConfigNames->itemText(index));
-	});
-}
-else if (i == 2)
-{
-	// Add Save button only for first widget
-	QPushButton *pb = new QPushButton();
-	pb->setText("Save");
-	QObject::connect(pb, &QPushButton::released, [this]()
-	{
-		if (m_wavesGeometricData.size() == 24
-			&& m_configNameLineEdit)
-		{
-			bool newConfigCreated = m_gerstnelParamManager.AddConfig(m_configNameLineEdit->text().toLatin1().data(), m_wavesGeometricData.data());
-			m_gerstnelParamManager.SaveToFile();
-			if (newConfigCreated)
+			// Dx
+			QWidget *w7 = new QWidget();
+			QHBoxLayout *h7 = new QHBoxLayout();
+			h7->setContentsMargins(1, 1, 1, 1);
+			w7->setLayout(h7);
+			QLabel *ldx = new QLabel();
+			ldx->setText("Dx: ");
+			h7->addWidget(ldx);
+			QDoubleSpinBox *sdx = new QDoubleSpinBox();
+			sdx->setDecimals(4);
+			sdx->setMinimum(-10000);
+			sdx->setMaximum(10000);
+			sdx->setValue(m_wavesGeometricData[6 * i + 4]);
+			m_wavesGeometricDataWidgets.push_back(sdx);
+			h7->addWidget(sdx);
+			QObject::connect(sdx, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, i, D_wid](double newVal)
 			{
-				m_comboConfigNames->addItem(m_configNameLineEdit->text().toLatin1().data());
-				m_comboConfigNames->setCurrentIndex(m_comboConfigNames->count() - 1);
-			}
+				m_wavesGeometricData[6 * i + 4] = newVal;
+				D_wid->SetDx(newVal);
+				D_wid->update();
+			});
+			vlay->addWidget(w7);
+
+			// Dy
+			QWidget *w8 = new QWidget();
+			QHBoxLayout *h8 = new QHBoxLayout();
+			h8->setContentsMargins(1, 1, 1, 1);
+			w8->setLayout(h8);
+			QLabel *ldy = new QLabel();
+			ldy->setText("Dy: ");
+			h8->addWidget(ldy);
+			QDoubleSpinBox *sdy = new QDoubleSpinBox();
+			sdy->setDecimals(4);
+			sdy->setMinimum(-10000);
+			sdy->setMaximum(10000);
+			sdy->setValue(m_wavesGeometricData[6 * i + 5]);
+			m_wavesGeometricDataWidgets.push_back(sdy);
+			h8->addWidget(sdy);
+			QObject::connect(sdy, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, i, D_wid](double newVal)
+			{
+				m_wavesGeometricData[6 * i + 5] = newVal;
+				D_wid->SetDy(newVal);
+				D_wid->update();
+			});
+			vlay->addWidget(w8);
+
+			//DirectionVectorWidget *D_wid = new DirectionVectorWidget();
+
+			QObject::connect(D_wid, &DirectionVectorWidget::onMousePressed2, [this, i, sdx, sdy](float x, float y)
+			{
+				m_wavesGeometricData[6 * i + 4] = x;
+				m_wavesGeometricData[6 * i + 5] = y;
+				sdx->setValue(x);
+				sdy->setValue(y);
+				//m_renderer->GetWaterIFFT()->SetDirection(x, y);
+			});
+
+			vlay->addWidget(D_wid);
+
+
+		if (i == 0)
+		{
+			m_configNameLineEdit = new QLineEdit();
+			vlay->addWidget(m_configNameLineEdit);
 		}
-	});
+		else if (i == 1)
+		{
+			m_comboConfigNames = new QComboBox();
+			vlay->addWidget(m_comboConfigNames);
 
-	vlay->addWidget(pb);
-}
+			auto names = m_gerstnelParamManager.GetConfigsNames();
+			for (auto &n : names)
+			{
+				m_comboConfigNames->addItem(QString(n.c_str()));
+			}
 
-hlay->addWidget(vcontainer);
+			QObject::connect(m_comboConfigNames, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index)
+			{
+				auto configFloats = m_gerstnelParamManager.GetConfigData(index);
+				for (int i = 0; i < 24; ++i)
+				{
+					//if(i % 6 != 4 && i % 6 != 5)
+					m_wavesGeometricData[i] = configFloats[i];
+				}
+				m_wavesGeometricData = configFloats;
+				UpdateParamsWidgetsValues();
+
+				m_configNameLineEdit->setText(m_comboConfigNames->itemText(index));
+			});
+		}
+		else if (i == 2)
+		{
+			// Add Save button only for first widget
+			QPushButton *pb = new QPushButton();
+			pb->setText("Save");
+			QObject::connect(pb, &QPushButton::released, [this]()
+			{
+				if (m_wavesGeometricData.size() == 24
+					&& m_configNameLineEdit)
+				{
+					bool newConfigCreated = m_gerstnelParamManager.AddConfig(m_configNameLineEdit->text().toLatin1().data(), m_wavesGeometricData.data());
+					m_gerstnelParamManager.SaveToFile();
+					if (newConfigCreated)
+					{
+						m_comboConfigNames->addItem(m_configNameLineEdit->text().toLatin1().data());
+						m_comboConfigNames->setCurrentIndex(m_comboConfigNames->count() - 1);
+					}
+				}
+			});
+
+			vlay->addWidget(pb);
+		}
+
+		hlay->addWidget(vcontainer);
 		}
 	}
 
@@ -258,7 +398,7 @@ hlay->addWidget(vcontainer);
 		QVBoxLayout *v2lay = new QVBoxLayout();
 		v2lay->setContentsMargins(1, 1, 1, 1);
 		wid2->setLayout(v2lay);
-
+		m_W2 = wid2;
 		{
 			QWidget *L_wid = new QWidget(wid2);
 			QHBoxLayout *L_lay = new QHBoxLayout();
@@ -318,13 +458,13 @@ hlay->addWidget(vcontainer);
 				m_renderer->GetWaterIFFT()->SetAmplitude(newVal);
 				A_slider->setValue(newVal);
 			});
-
+			
 			QObject::connect(A_slider, &QSlider::valueChanged, [this, A_spin](int newVal)
 			{
 				m_renderer->GetWaterIFFT()->SetAmplitude(newVal);
 				A_spin->setValue(newVal);
 			});
-
+			
 			v2lay->addWidget(A_wid);
 		}
 
@@ -338,14 +478,14 @@ hlay->addWidget(vcontainer);
 			I_lay->addWidget(I_label);
 
 			QSlider *I_slider = new QSlider(Qt::Orientation::Horizontal, I_wid);
-			I_slider->setMinimum(0.01);
-			I_slider->setMaximum(20000);
+			I_slider->setMinimum(0);
+			I_slider->setMaximum(40);
 			I_lay->addWidget(I_slider);
 
 			QDoubleSpinBox *I_spin = new QDoubleSpinBox();
 			I_spin->setDecimals(4);
-			I_spin->setMinimum(0.01);
-			I_spin->setMaximum(20000);
+			I_spin->setMinimum(0);
+			I_spin->setMaximum(40);
 
 			I_lay->addWidget(I_spin);
 			QObject::connect(I_spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, I_slider](double newVal)
@@ -373,15 +513,15 @@ hlay->addWidget(vcontainer);
 			C_lay->addWidget(C_label);
 
 			QSlider *C_slider = new QSlider(Qt::Orientation::Horizontal, C_wid);
-			C_slider->setMinimum(0.01);
-			C_slider->setMaximum(1000);
+			C_slider->setMinimum(0.00);
+			C_slider->setMaximum(30);
 			C_lay->addWidget(C_slider);
 
 			QDoubleSpinBox *C_spin = new QDoubleSpinBox();
 			C_spin->setDecimals(4);
-			C_spin->setSingleStep(0.1);
-			C_spin->setMinimum(0.00);
-			C_spin->setMaximum(200);
+			C_spin->setSingleStep(0.01);
+			C_spin->setMinimum(0);
+			C_spin->setMaximum(30);
 
 			C_lay->addWidget(C_spin);
 			QObject::connect(C_spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, C_slider](double newVal)
@@ -400,8 +540,44 @@ hlay->addWidget(vcontainer);
 		}
 
 		{
+			QWidget *C_wid = new QWidget(wid2);
+			QHBoxLayout *C_lay = new QHBoxLayout();
+			C_wid->setLayout(C_lay);
+
+			QLabel *C_label = new QLabel(C_wid);
+			C_label->setText("Tiles: ");
+			C_lay->addWidget(C_label);
+
+			QSlider *C_slider = new QSlider(Qt::Orientation::Horizontal, C_wid);
+			C_slider->setMinimum(0);
+			C_slider->setMaximum(256);
+			C_lay->addWidget(C_slider);
+
+			QDoubleSpinBox *C_spin = new QDoubleSpinBox();
+			C_spin->setDecimals(4);
+			C_spin->setSingleStep(1);
+			C_spin->setMinimum(0);
+			C_spin->setMaximum(256);
+
+			C_lay->addWidget(C_spin);
+			QObject::connect(C_spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), [this, C_slider](double newVal)
+			{
+				m_renderer->GetWaterIFFT()->SetTiles(newVal);
+				C_slider->setValue(newVal);
+			});
+
+			QObject::connect(C_slider, &QSlider::valueChanged, [this, C_spin](int newVal)
+			{
+				m_renderer->GetWaterIFFT()->SetTiles(newVal);
+				C_spin->setValue(newVal);
+			});
+
+			v2lay->addWidget(C_wid);
+		}
+
+		{
 			DirectionVectorWidget *D_wid = new DirectionVectorWidget(wid2);
-			
+
 			QObject::connect(D_wid, &DirectionVectorWidget::onMousePressed2, [this](float x, float y)
 			{
 				m_renderer->GetWaterIFFT()->SetDirection(x, y);
@@ -411,7 +587,8 @@ hlay->addWidget(vcontainer);
 		}
 		vlay->addWidget(wid2);
 	}
-	//wid->hide();
+
+	SetUIVisibility(m_renderer->GetType());
 }
 void OpenGLCanvas::UpdateParamsWidgetsValues()
 {
@@ -614,21 +791,24 @@ void OpenGLCanvas::keyPressEvent(QKeyEvent *event)
 		}
 		break;
 	case Qt::Key_T:
-		m_isWireframeMode ^= 1;
+		m_renderer->ToogleShowQuads();
 		break;
 	case Qt::Key_1:
 	{
 		m_renderer->SetRenderType(0);
+		SetUIVisibility(0);
 		break;
 	}
 	case Qt::Key_2:
 	{
 		m_renderer->SetRenderType(1);
+		SetUIVisibility(1);
 		break;
 	}
 	case Qt::Key_3:
 	{
 		m_renderer->SetRenderType(2);
+		SetUIVisibility(2);
 		break;
 	}
 	case Qt::Key_4:
@@ -882,6 +1062,48 @@ void OpenGLCanvas::InitWaterParams()
 		dir = glm::normalize(dir);
 		m_wavesNormalMapData[idx + 4] = dir.x;
 		m_wavesNormalMapData[idx + 5] = dir.y;
+	}
+}
+/////////////////////////////////////////////////////////////////////////////////////
+void OpenGLCanvas::SetUIVisibility(int type)
+{
+	if (type == 0)
+	{
+		m_W0->show();
+		m_W1->hide();
+		m_W2->hide();
+		//m_W0->update();
+		if (m_wid->isVisible())
+		{
+			m_wid->hide();
+			m_wid->show();
+		}
+	}
+	else
+	if (type == 1)
+	{
+		m_W0->hide();
+		m_W1->show();
+		m_W2->hide();
+		//m_W1->update();
+		if (m_wid->isVisible())
+		{
+			m_wid->hide();
+			m_wid->show();
+		}
+	}
+	else
+	if (type == 2)
+	{
+		m_W0->hide();
+		m_W1->hide();
+		m_W2->show();
+		//m_W2->update();
+		if (m_wid->isVisible())
+		{
+			m_wid->hide();
+			m_wid->show();
+		}
 	}
 }
 /////////////////////////////////////////////////////////////////////////////////////

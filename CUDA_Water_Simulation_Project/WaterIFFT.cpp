@@ -53,6 +53,8 @@ void WaterIFFT::InitGeometry()
 	m_pingpong0 = CreateTexture(tex_w, tex_h);
 
 	m_DyTexture = CreateTexture(tex_w, tex_h);
+	m_DxTexture = CreateTexture(tex_w, tex_h);
+	m_DzTexture = CreateTexture(tex_w, tex_h);
 
 	m_bitReversedIndices = InitBitReversedIndices();
 
@@ -745,6 +747,12 @@ void WaterIFFT::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode)
 	{
 		float val = m_choppy ? 1.0f : -1.0f;
 		f->glUniform1f(choppyLocation, val);
+	}
+
+	GLint tilesLocation = f->glGetUniformLocation(waterifftShader, "tiles");
+	if (tilesLocation != -1)
+	{
+		f->glUniform1f(tilesLocation, m_tiles);
 	}
 
 	GLint screenResolutionLocation = f->glGetUniformLocation(waterifftShader, "screenResolution");

@@ -29,7 +29,7 @@ void Water::InitGeometry()
 		0.0f, 1.0f, 0.0f
 	};
 
-	m_lightPosition = glm::vec3(200, 70, 200);
+	m_lightPosition = glm::vec3(1000, 50, 1000);
 	m_screenResolution = glm::vec2(1024, 768);
 }
 ////////////////////////////////////////////////////////////////////////
@@ -233,6 +233,25 @@ void Water::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode)
 	{
 		f->glUniform1i(gridSizeLocation, gridSize);
 	}
+
+	GLint distortionStrengthLocation = f->glGetUniformLocation(terrainShader, "distortStrength");
+	if (distortionStrengthLocation != -1)
+	{
+		f->glUniform1f(distortionStrengthLocation, m_distortionStrength);
+	}
+
+	GLint shineDamperLocation = f->glGetUniformLocation(terrainShader, "shineDamper");
+	if (shineDamperLocation != -1)
+	{
+		f->glUniform1f(shineDamperLocation, m_shineDamper);
+	}
+
+	GLint reflectivityLocation = f->glGetUniformLocation(terrainShader, "reflectivity");
+	if (reflectivityLocation != -1)
+	{
+		f->glUniform1f(reflectivityLocation, m_reflectivity);
+	}
+
 	//
 	//glEnable(GL_TEXTURE0);
 	//
@@ -240,14 +259,14 @@ void Water::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode)
 	//m_waterNormal->bind(2);
 	//m_skyboxTex->bind(3);
 	//
-	//if (m_isWireframeMode)
-	//{
-	//f->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//}
-	//else
-	//{
-	f->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//}
+	if (debugMode)
+	{
+		f->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else
+	{
+		f->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	}
 	f->glPatchParameteri(GL_PATCH_VERTICES, 4);
 	f->glDrawArraysInstanced(GL_PATCHES, 0, 4, gridSize * gridSize);
 }

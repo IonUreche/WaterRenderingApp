@@ -16,6 +16,10 @@ public:
 	void SetDepthTexture(GLuint depthTex) { m_depthTex = depthTex; }
 	glm::mat4 m_view;
 
+	void SetDistortionStrength(float val){ m_distortionStrength = val; }
+	void SetShineDamper(float val) { m_shineDamper = val; }
+	void SetReflectivity(float val) { m_reflectivity = val; }
+
 private:
 	GLuint m_vbo;
 	std::vector<GLfloat> m_patch_vert;
@@ -28,5 +32,8 @@ private:
 	GLuint m_colorTex0;
 	GLuint m_colorTex1;
 	GLuint m_depthTex;
-};
 
+	float m_distortionStrength = 0.02;
+	float m_shineDamper = 20;
+	float m_reflectivity = 0.2;
+};

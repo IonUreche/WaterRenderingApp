@@ -90,6 +90,8 @@ protected:
 
 	float GetNextRand();
 
+	void SetUIVisibility(int type);
+
 private:
 	float t = 0;
 	GLfloat m_time = 0.0f;
@@ -165,6 +167,9 @@ private:
 	QOpenGLFunctions_4_5_Core* f = nullptr;
 
 	QWidget* m_wid = nullptr;
+	QWidget* m_W0 = nullptr;
+	QWidget* m_W1 = nullptr;
+	QWidget* m_W2 = nullptr;
 	
 
 	int m_cameraMoveFlags = 0;

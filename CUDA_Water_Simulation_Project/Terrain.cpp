@@ -184,14 +184,14 @@ void Terrain::Draw(glm::mat4x4 &mvp, glm::vec3 cameraPos, bool debugMode)
 	//m_waterNormal->bind(2);
 	//m_skyboxTex->bind(3);
 	//
-	//if (m_isWireframeMode)
-	//{
-		//f->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	//}
-	//else
-	//{
+	if (debugMode)
+	{
+		f->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	}
+	else
+	{
 		f->glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	//}
+	}
 	f->glPatchParameteri(GL_PATCH_VERTICES, 4);
 	f->glDrawArraysInstanced(GL_PATCHES, 0, 4, gridSize * gridSize);
 }

@@ -31,7 +31,7 @@ uniform float time;
 //in vec3 viewv;
 void main(void)
 {
-	color = vec4(1.0);
+	color = vec4(0.0, 0.7, 1.0, 1.0);
 	//if(debug_mode_enabled != 0) // visualize the normals by color
 	//{
 		//vec3 N;
