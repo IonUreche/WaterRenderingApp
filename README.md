@@ -4,9 +4,8 @@ This is my implementation of three different water simulation algorithms. The ap
 
 1) The first Algorithm is based on Distortion map for UV distortion of the coords used to sample refracted and reflected texture of the scene. Got some hints from [this](url=https://www.youtube.com/watch?v=HusvGeEDU_U) guy! 
 
-<p align="center">
-  ![](https://media.giphy.com/media/NS4DSthmwdzG2DTWmJ/giphy.gif)
-</p>
+                                ![](https://media.giphy.com/media/NS4DSthmwdzG2DTWmJ/giphy.gif)
+
 
 2) The second algorithm is using Gerstner Waves. The final wave is a sum of 4 Gerstner Waves.
 Based on this paper from GPU Gems: https://developer.nvidia.com/gpugems/GPUGems/gpugems_ch01.html
