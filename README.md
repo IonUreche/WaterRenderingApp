@@ -7,7 +7,7 @@ This is my implementation of three different water simulation algorithms. The ap
 ![](https://media.giphy.com/media/NS4DSthmwdzG2DTWmJ/giphy.gif)
 
 2) The second algorithm is using Gerstner Waves. The final wave is a sum of 4 Gerstner Waves.
-Based on this paper from GPU Gems: https://developer.nvidia.com/gpugems/GPUGems/gpugems_ch01.html
+Based on this paper from GPU Gems: [LINK](https://developer.nvidia.com/gpugems/GPUGems/gpugems_ch01.html)
 
 The texturing of the water in the gif below is for demo purpose only, and needs proper implementation.
 
