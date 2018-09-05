@@ -1,4 +1,4 @@
-# WaterRenderingApp
+# Water Rendering App
 
 This is my implementation of three different water simulation algorithms. The application I've been working on for my master's thesis.
 
