@@ -18,6 +18,8 @@ The author also have some  youtube [videos](https://www.youtube.com/watch?v=B3YO
 
 ![](https://media.giphy.com/media/3ojpoNvEfn0y8bj0Oh/giphy.gif)
 
+For longer and better quality demo videos, visit [This Link](https://photos.app.goo.gl/DaAWw3LyeRnfmpCy8)
+
 TO DO's:
 1. Proper shading for water on algorithm 2 and 3
 2. Better logic for choosing tesselation factor
