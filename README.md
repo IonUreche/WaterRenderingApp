@@ -4,6 +4,7 @@ This is my implementation of three different water simulation algorithms. The ap
 
 1) The first Algorithm is based on Distortion map for UV distortion of the coords used to sample refracted and reflected texture of the scene. Got some hints from [this](url=https://www.youtube.com/watch?v=HusvGeEDU_U) guy! 
 
+![](https://media.giphy.com/media/3ojpoNvEfn0y8bj0Oh/giphy.gif)
 ![](https://media.giphy.com/media/fiqd9kNSDsW5ILi8rT/giphy.gif)
 ![](https://github.com/IonUreche/WaterRenderingApp/master/CUDA_Water_Simulation_Project/src/Media/Water1Gif.gif)
 
