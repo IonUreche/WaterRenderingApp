@@ -23,4 +23,4 @@ For longer and better quality demo videos, visit [This Link](https://photos.app.
 TO DO's:
 1. Proper shading for water on algorithm 2 and 3
 2. Better logic for choosing tesselation factor
-3. Generate Texture space normal maps for Gerstner Waves implementation
+3. Implement Texture space normals generation for Gerstner Waves implementation
